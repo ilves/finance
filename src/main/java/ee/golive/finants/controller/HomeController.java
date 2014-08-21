@@ -16,6 +16,7 @@ public class HomeController {
     @RequestMapping("/")
     public String test(Model model) {
         Account root = accountService.getRootAccount();
+        accountService.addAccountTotalsToTree(root);
         model.addAttribute("root", root);
         model.addAttribute("accountService", accountService);
 

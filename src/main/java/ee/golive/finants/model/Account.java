@@ -16,7 +16,7 @@ public class Account {
     private String parent_guid;
 
     @Transient
-    private Double sum;
+    private Long sum;
 
     @ManyToOne
     @JoinColumn(name="parent_guid", insertable=false, updatable=false)
@@ -69,11 +69,11 @@ public class Account {
         return this.splits;
     }
 
-    public Double getSum() {
+    public Long getSum() {
         return sum;
     }
 
-    public void setSum(Double sum) {
+    public void setSum(Long sum) {
         this.sum = sum;
     }
 }

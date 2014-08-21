@@ -3,10 +3,12 @@
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="<c:url value='/resources/bootstrap/css/bootstrap.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<c:url value='/resources/bootstrap/css/bootstrap-theme.css'/>"/>
+    <link rel="stylesheet" type="text/css" href="<c:url value='/resources/bootstrap/css/boostrap-theme.css'/>"/>
     <link rel="stylesheet" type="text/css" href="<c:url value='/resources/style/main.css'/>"/>
-
-    <title>Default tiles template</title>
+        <script type="text/javascript" src="<c:url value='/resources/js/jquery.js'/>"></script>
+        <script type="text/javascript" src="<c:url value='/resources/js/main.js'/>"></script>
+        <script type="text/javascript" src="<c:url value='/resources/highcharts/js/highcharts.js'/>"></script>
+    <title>TITLE</title>
     <style type="text/css">
 
     </style>

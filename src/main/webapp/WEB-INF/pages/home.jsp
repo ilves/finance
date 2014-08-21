@@ -1,7 +1,6 @@
 <%@ include file="/WEB-INF/layout/taglibs.jsp"%>
 <tiles:insertDefinition name="baseLayout">
     <tiles:putAttribute name="content">
-        (${accountService.getAccountTotal(root)})
-        <z:account_list root="${root}" />
+        <z:account_list root="${root}" level="1" />
     </tiles:putAttribute>
 </tiles:insertDefinition>
