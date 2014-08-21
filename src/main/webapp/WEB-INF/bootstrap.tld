@@ -1,0 +1,26 @@
+<taglib>
+    <tlib-version>1.0</tlib-version>
+    <jsp-version>2.0</jsp-version>
+    <short-name>Golive Boostrap</short-name>
+    <tag>
+        <name>navbar</name>
+        <tag-class>ee.golive.bootstrap.tags.Navbar</tag-class>
+        <bodycontent>scriptless</bodycontent>
+    </tag>
+    <tag>
+        <name>navbarHeader</name>
+        <tag-class>ee.golive.bootstrap.tags.NavbarHeader</tag-class>
+        <bodycontent>scriptless</bodycontent>
+        <attribute>
+            <name>brand</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>link</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+    </tag>
+
+</taglib>

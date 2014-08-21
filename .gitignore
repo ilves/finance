@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+target/
+gradle/
+build/
+gradlew
+gradlew.bat
+finants.iml
+debug.txt
+gradle.properties

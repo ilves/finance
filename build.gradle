@@ -1,0 +1,69 @@
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'application'
+apply plugin: 'idea'
+
+repositories {
+    mavenCentral()
+}
+
+def tilesVersion = '3.0.4'
+def tilesCore    = "org.apache.tiles:tiles-core:${tilesVersion}"
+def tilesAPI     = "org.apache.tiles:tiles-api:${tilesVersion}"
+def tilesJSP     = "org.apache.tiles:tiles-jsp:${tilesVersion}"
+
+configurations {
+  runtimeOnly
+}
+
+dependencies {
+    compile "org.springframework:spring-core:4.0.5.RELEASE"
+    compile "org.springframework:spring-webmvc:4.0.5.RELEASE"
+    compile "org.springframework:spring-orm:4.0.5.RELEASE"
+    compile "org.springframework:spring-oxm:4.0.5.RELEASE"
+    compile "org.springframework:spring-jdbc:4.0.5.RELEASE"
+    compile "org.springframework:spring-tx:4.0.5.RELEASE"
+
+    compile 'org.springframework.security:spring-security-web:3.2.4.RELEASE'
+    compile 'org.springframework.security:spring-security-core:3.2.4.RELEASE'
+    compile 'org.springframework.security:spring-security-config:3.2.4.RELEASE'
+
+    compile "org.springframework.data:spring-data-jpa:1.6.1.RELEASE"
+
+    compile "org.hibernate:hibernate-core:4.1.0.Final"
+    compile "org.hibernate:hibernate-entitymanager:4.1.0.Final"
+    compile "mysql:mysql-connector-java:5.1.31"
+    compile "org.apache.commons:commons-dbcp2:2.0"
+    compile "org.apache.httpcomponents:httpclient:4.3.1"
+
+    compile 'org.slf4j:slf4j-simple:1.6.1'
+
+    compile "org.hibernate:hibernate-validator:5.1.0.Final"
+    compile 'javax.validation:validation-api:1.1.0.Final'
+
+    compile 'javax.inject:javax.inject:1'
+
+    compile(
+        tilesCore, tilesAPI, tilesJSP
+    )
+
+    providedCompile "javax.servlet:servlet-api:2.5"
+    providedCompile "javax.servlet:jsp-api:2.0"
+
+	runtime "javax.servlet:jstl:1.2"
+}
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath (group: 'com.sahlbach.gradle', name: 'gradle-jetty-eclipse-plugin', version: '1.9.+')
+    }
+}
+
+apply plugin: 'jettyEclipse'
+
+jettyEclipse.contextPath = ''
+jettyEclipse.scanIntervalSeconds = 1
+jettyEclipse.automaticReload = true
