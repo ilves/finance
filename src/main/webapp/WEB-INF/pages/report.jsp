@@ -3,7 +3,12 @@
 
 <tiles:insertDefinition name="baseLayout">
     <tiles:putAttribute name="content">
-        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        <ul class="nav nav-pills">
+          <li class="<c:if test="${period eq 'full'}">active</c:if>"><a href="?period=full">Alates algusest</a></li>
+          <li class="<c:if test="${period eq 'previous'}">active</c:if>"><a href="?period=previous">Eelmine aasta</a></li>
+          <li class="<c:if test="${period eq 'current'}">active</c:if>"><a href="?period=current">See aasta</a></li>
+        </ul>
+        <z:chart chart="${chart}" />
         <script type="text/javascript">
             jQuery.noConflict();
 
@@ -12,15 +17,15 @@
 
             (function($){ // encapsulate jQuery
                 $(function () {
-                    $('#container').highcharts({
+                    $('#scontainer').highcharts({
                         chart: {
-                            type: '${chart.type}'
+
                         },
                         title: {
                             text: 'Column chart with negative values'
                         },
                         xAxis: {
-                            categories: ${chart.categoriesJson}
+                            categories:
                         },
                         stackLabels: {
                             enabled: true,
@@ -44,7 +49,6 @@
                         credits: {
                             enabled: false
                         },
-                        series: ${chart.seriesJson}
                     });
                 });		})(jQuery);
         </script>

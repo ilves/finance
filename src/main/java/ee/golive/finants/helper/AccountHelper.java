@@ -51,4 +51,28 @@ public class AccountHelper {
         }
         return list;
     }
+
+    public static List<Float> transformAccountSum(List<AccountSum> list) {
+        List<Float> ret = new ArrayList<Float>();
+        for(AccountSum elem : list) {
+            ret.add(elem.getSumMoney());
+        }
+        return ret;
+    }
+
+    public static void addInSeries(List<AccountSum> list) {
+        Long tmp = 0l;
+        for(AccountSum elem : list) {
+            tmp+=elem.getSum();
+            elem.setSum(tmp);
+        }
+    }
+
+    public static Long sumList(List <AccountSum> list) {
+        Long sum = 0l;
+        for(AccountSum elem : list) {
+            sum+=elem.getSum();
+        }
+        return sum;
+    }
 }

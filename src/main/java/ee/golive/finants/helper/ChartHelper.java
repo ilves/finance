@@ -9,13 +9,6 @@ import java.util.Date;
 import java.util.List;
 
 public class ChartHelper {
-    public static List<Float> transformAccountSum(List<AccountSum> list) {
-        List<Float> ret = new ArrayList<Float>();
-        for(AccountSum elem : list) {
-            ret.add(elem.getSumMoney());
-        }
-        return ret;
-    }
 
     public static List<String> transformCalendar(List<Calendar> intervals, SimpleDateFormat format) {
         List<String> ret = new ArrayList<String>();
@@ -54,7 +47,7 @@ public class ChartHelper {
                 }
             }
             if (!found) {
-                ret.add(new AccountSum(0, "", "", d.get(Calendar.YEAR), d.get(Calendar.MONTH)));
+                ret.add(new AccountSum(0, "LISATUD", "", d.get(Calendar.YEAR), d.get(Calendar.MONTH)+1));
             }
         }
         return ret;

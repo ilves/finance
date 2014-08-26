@@ -1,9 +1,8 @@
 package ee.golive.finants.controller;
 
 import com.google.gson.Gson;
-import ee.golive.finants.helper.ChartHelper;
+import ee.golive.finants.helper.AccountHelper;
 import ee.golive.finants.model.Account;
-import ee.golive.finants.model.AccountSum;
 import ee.golive.finants.model.Series;
 import ee.golive.finants.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +31,7 @@ public class AccountController {
         model.addAttribute("total", 0);
 
         List<Series> series = new ArrayList<Series>();
-        List<Float> list1 = ChartHelper.transformAccountSum(accountService.getStats(account));
+        List<Float> list1 = AccountHelper.transformAccountSum(accountService.getStats(account));
 
         series.add(new Series("Test", list1));
 

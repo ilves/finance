@@ -25,31 +25,6 @@
             </c:forEach>
         </table>
 
-        <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-        <script type="text/javascript">
-            jQuery.noConflict();
 
-            var example = 'column-negative',
-                    theme = 'default';
-
-            (function($){ // encapsulate jQuery
-                $(function () {
-                    $('#container').highcharts({
-                        chart: {
-                            type: 'column'
-                        },
-                        title: {
-                            text: 'Column chart with negative values'
-                        },
-                        xAxis: {
-                            categories: ${cartcategories}
-                        },
-                        credits: {
-                            enabled: false
-                        },
-                        series: ${chartseries}
-                    });
-                });		})(jQuery);
-        </script>
     </tiles:putAttribute>
 </tiles:insertDefinition>

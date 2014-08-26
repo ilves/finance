@@ -77,7 +77,6 @@ public class AccountDaoImpl implements AccountDao {
             ids[n] = "'"+account.getGuid()+"'";
             n++;
         }
-
         return this.entityManager.createQuery(
                 "select " +
                         "new ee.golive.finants.model.AccountSum(" +
@@ -88,6 +87,26 @@ public class AccountDaoImpl implements AccountDao {
                 "where s.account_guid in ("+implode(", ", ids)+") " +
                 "group by YEAR(t.post_date), MONTH(t.post_date) " +
                 "order by YEAR(t.post_date) asc, MONTH(t.post_date) asc").getResultList();
+    }
+
+    @Override
+    public List<AccountSum> getAccountTotalsMonthlyIntervalDesc(List<Account> accounts, String description) {
+        String[] ids = new String[accounts.size()];
+        int n = 0;
+        for(Account account : accounts) {
+            ids[n] = "'"+account.getGuid()+"'";
+            n++;
+        }
+        return this.entityManager.createQuery(
+                "select " +
+                        "new ee.golive.finants.model.AccountSum(" +
+                        "SUM(s.value_num) AS sum, s.account_guid, a.account_type, YEAR(t.post_date) AS year, MONTH(t.post_date) AS month) " +
+                        "from Split AS s " +
+                        "join s.transaction as t " +
+                        "join s.account as a " +
+                        "where s.account_guid in ("+implode(", ", ids)+") AND t.description = '" + description + "'" +
+                        "group by YEAR(t.post_date), MONTH(t.post_date) " +
+                        "order by YEAR(t.post_date) asc, MONTH(t.post_date) asc").getResultList();
     }
 
     public static String implode(String glue, String[] strArray)
