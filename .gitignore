@@ -6,5 +6,6 @@ build/
 gradlew
 gradlew.bat
 finants.iml
+bootstrap
 debug.txt
 gradle.properties

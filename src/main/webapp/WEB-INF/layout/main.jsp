@@ -2,12 +2,16 @@
 <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" type="text/css" href="<c:url value='/resources/bootstrap/css/bootstrap.css'/>"/>
-    <link rel="stylesheet" type="text/css" href="<c:url value='/resources/bootstrap/css/boostrap-theme.css'/>"/>
+
+    <link rel='stylesheet' href='/webjars/bootstrap/3.2.0/css/bootstrap.min.css' />
+
     <link rel="stylesheet" type="text/css" href="<c:url value='/resources/style/main.css'/>"/>
-        <script type="text/javascript" src="<c:url value='/resources/js/jquery.js'/>"></script>
-        <script type="text/javascript" src="<c:url value='/resources/js/main.js'/>"></script>
-        <script type="text/javascript" src="<c:url value='/resources/highcharts/js/highcharts.js'/>"></script>
+
+    <script type="text/javascript" src="/webjars/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="<c:url value='/resources/js/main.js'/>"></script>
+    <script type="text/javascript" src="/webjars/highcharts/4.0.3/highcharts.js"></script>
+
+
     <title>TITLE</title>
     <style type="text/css">
 
