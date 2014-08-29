@@ -71,7 +71,6 @@ public class ReportController {
 
         List<Account> cashAccounts = collectionsHelper.getByName("cash");
         List<AccountSum> cashSum = ChartHelper.sync(accountService.getStatsTotal(cashAccounts), syncInterval);
-        System.out.println(cashSum);
         AccountHelper.addInSeries(cashSum);
         cashSum = ChartHelper.sync(cashSum, interval);
 
