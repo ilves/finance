@@ -7,5 +7,6 @@ gradlew
 gradlew.bat
 finants.iml
 bootstrap
+highcharts
 debug.txt
 gradle.properties
