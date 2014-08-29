@@ -22,9 +22,15 @@
                 </td>
             </tr>
             <tr>
+                <th>Aktsiad kokku:</th>
+                <td><fmt:formatNumber currencySymbol="" type="currency" value="${shares_sum/100}" />&euro;
+                (<fmt:formatNumber currencySymbol="" type="currency" value="${shares_sum/100/months}" /> &euro;)
+                </td>
+            </tr>
+            <tr>
                 <th>Kokku:</th>
-                <td><fmt:formatNumber currencySymbol="" type="currency" value="${(real_sum+p2p_sum)/100}" />&euro;
-                (<fmt:formatNumber currencySymbol="" type="currency" value="${(real_sum+p2p_sum)/100/months}" /> &euro;)
+                <td><fmt:formatNumber currencySymbol="" type="currency" value="${(real_sum+p2p_sum+shares_sum)/100}" />&euro;
+                (<fmt:formatNumber currencySymbol="" type="currency" value="${(real_sum+p2p_sum+shares_sum)/100/months}" /> &euro;)
                 </td>
             </tr>
         </table>

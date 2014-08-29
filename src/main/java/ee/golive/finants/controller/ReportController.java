@@ -85,10 +85,16 @@ public class ReportController {
         AccountHelper.addInSeries(loanSum);
         loanSum = ChartHelper.sync(loanSum, interval);
 
+        List<Account> sharesAccounts = collectionsHelper.getSharesAccounts();
+        List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts), syncInterval);
+        AccountHelper.addInSeries(shareSum);
+        shareSum = ChartHelper.sync(shareSum, interval);
+
         List<Series> series = new ArrayList<Series>();
         series.add(new Series("CASH", AccountHelper.transformAccountSum(cashSum)));
         series.add(new Series("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
         series.add(new Series("REALESTATE", AccountHelper.transformAccountSum(realSum)));
+        series.add(new Series("SHARES", AccountHelper.transformAccountSum(shareSum)));
 
 
         StackedBarChart portfolio = new StackedBarChart();
@@ -118,9 +124,13 @@ public class ReportController {
         List<Account> realestateAccounts = collectionsHelper.getRealestateAccounts();
         List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotal(realestateAccounts), interval);
 
+        List<Account> sharesAccounts = collectionsHelper.getSharesAccounts();
+        List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts), interval);
+
         List<Series> series = new ArrayList<Series>();
         series.add(new Series("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
         series.add(new Series("REALESTATE", AccountHelper.transformAccountSum(realSum)));
+        series.add(new Series("SHARES", AccountHelper.transformAccountSum(shareSum)));
 
         Graph investments = new StackedBarChart();
         investments.setSeries(series);
@@ -131,6 +141,7 @@ public class ReportController {
 
         model.addAttribute("p2p_sum", AccountHelper.sumList(loanSum));
         model.addAttribute("real_sum", AccountHelper.sumList(realSum));
+        model.addAttribute("shares_sum", AccountHelper.sumList(shareSum));
         model.addAttribute("months", interval.size());
 
         return "report_investing";

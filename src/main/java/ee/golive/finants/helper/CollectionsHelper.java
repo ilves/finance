@@ -37,6 +37,14 @@ public class CollectionsHelper {
         return accountService.getAccounts(realestate);
     }
 
+    public List<Account> getSharesAccounts() {
+        List<String> shares = new ArrayList<String>();
+        shares.add("9c958dc7cd28a9a8bd8feabf669b579d");
+        shares.add("0433f131e1e6dc0683795b08029f639c");
+        CollectionsHelper helper = new CollectionsHelper();
+        return accountService.getAccounts(shares);
+    }
+
     public List<Account> getCashAccounts() {
         List<String> cash = new ArrayList<String>();
         cash.add("4bb5c2e0a5afa049647ed13f3c4111dd");
