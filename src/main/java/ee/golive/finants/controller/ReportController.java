@@ -35,7 +35,7 @@ public class ReportController {
     @RequestMapping("/bondora")
     public String test(Model model, HttpServletRequest request) {
 
-        List<Account> accounts = collectionsHelper.getBondoraIncomeAccounts();
+        List<Account> accounts = collectionsHelper.getByName("bondoraIncome");
         List<List<AccountSum>> sums = accountService.getStats(accounts);
 
         Date start = getDate("start", request);
@@ -69,23 +69,23 @@ public class ReportController {
         List<Calendar> interval = ChartHelper.getIntervalList(start, end);
         List<Calendar> syncInterval = ChartHelper.getIntervalList(getDate("start", "full"), getDate("end", "full"));
 
-        List<Account> cashAccounts = collectionsHelper.getCashAccounts();
+        List<Account> cashAccounts = collectionsHelper.getByName("cash");
         List<AccountSum> cashSum = ChartHelper.sync(accountService.getStatsTotal(cashAccounts), syncInterval);
         System.out.println(cashSum);
         AccountHelper.addInSeries(cashSum);
         cashSum = ChartHelper.sync(cashSum, interval);
 
-        List<Account> realestateAccounts = collectionsHelper.getRealestateAccounts();
+        List<Account> realestateAccounts = collectionsHelper.getByName("realEstate");
         List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotal(realestateAccounts), syncInterval);
         AccountHelper.addInSeries(realSum);
         realSum = ChartHelper.sync(realSum, interval);
 
-        List<Account> loanAccounts = collectionsHelper.getLoanAccounts();
+        List<Account> loanAccounts = collectionsHelper.getByName("loan");
         List<AccountSum> loanSum = ChartHelper.sync(accountService.getStatsTotal(loanAccounts), syncInterval);
         AccountHelper.addInSeries(loanSum);
         loanSum = ChartHelper.sync(loanSum, interval);
 
-        List<Account> sharesAccounts = collectionsHelper.getSharesAccounts();
+        List<Account> sharesAccounts = collectionsHelper.getByName("shares");
         List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts), syncInterval);
         AccountHelper.addInSeries(shareSum);
         shareSum = ChartHelper.sync(shareSum, interval);
@@ -118,13 +118,13 @@ public class ReportController {
 
         List<Calendar> interval = ChartHelper.getIntervalList(start, end);
 
-        List<Account> loanAccounts = collectionsHelper.getLoanInvestmentAccounts();
+        List<Account> loanAccounts = collectionsHelper.getByName("loanInvestment");
         List<AccountSum> loanSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(loanAccounts, "Sissekanne"), interval);
 
-        List<Account> realestateAccounts = collectionsHelper.getRealestateAccounts();
+        List<Account> realestateAccounts = collectionsHelper.getByName("realEstate");
         List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotal(realestateAccounts), interval);
 
-        List<Account> sharesAccounts = collectionsHelper.getSharesAccounts();
+        List<Account> sharesAccounts = collectionsHelper.getByName("shares");
         List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts), interval);
 
         List<Series> series = new ArrayList<Series>();
@@ -155,10 +155,10 @@ public class ReportController {
 
         List<Calendar> interval = ChartHelper.getIntervalList(start, end);
 
-        List<Account> personal = collectionsHelper.getPersonalIncome();
+        List<Account> personal = collectionsHelper.getByName("personalIncome");
         List<AccountSum> personalSum = ChartHelper.sync(accountService.getStatsTotal(personal), interval);
 
-        List<Account> company = collectionsHelper.getCompanyIncome();
+        List<Account> company = collectionsHelper.getByName("companyIncome");
         List<AccountSum> companySum = ChartHelper.sync(accountService.getStatsTotal(company), interval);
 
         List<Series> series = new ArrayList<Series>();
