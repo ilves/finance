@@ -25,6 +25,13 @@ public class AccountSum {
         this.setAccount_type(account_type);
     }
 
+    public AccountSum(long sum, String account_guid, String account_type, int year) {
+        this.setSum(sum);
+        this.setAccount_guid(account_guid);
+        this.setYear(year);
+        this.setAccount_type(account_type);
+    }
+
     public long getSum() {
         if (this.account_type != null && this.account_type.equals("INCOME")) {
             return sum*-1;

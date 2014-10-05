@@ -27,11 +27,11 @@ public class AccountController {
     public String accountTransactions(Model model, @PathVariable(value="someID") String guid) {
         Account account = accountService.findByGuid(guid);
         model.addAttribute(account);
-        model.addAttribute("stats", accountService.getStats(account));
+        model.addAttribute("stats", accountService.getStats(account, "month"));
         model.addAttribute("total", 0);
 
         List<Series> series = new ArrayList<Series>();
-        List<Float> list1 = AccountHelper.transformAccountSum(accountService.getStats(account));
+        List<Float> list1 = AccountHelper.transformAccountSum(accountService.getStats(account, "month"));
 
         series.add(new Series("Test", list1));
 

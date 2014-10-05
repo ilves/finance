@@ -3,11 +3,7 @@
 
 <tiles:insertDefinition name="baseLayout">
     <tiles:putAttribute name="content">
-        <ul class="nav nav-pills">
-          <li class="<c:if test="${period eq 'full'}">active</c:if>"><a href="?period=full">Alates algusest</a></li>
-          <li class="<c:if test="${period eq 'previous'}">active</c:if>"><a href="?period=previous">Eelmine aasta</a></li>
-          <li class="<c:if test="${period eq 'current'}">active</c:if>"><a href="?period=current">See aasta</a></li>
-        </ul>
+        <%@ include file="/WEB-INF/parts/interval_filter.jsp" %>
         <table style="width:auto;" class="table pull-right">
             <tr>
                 <th>P2P Loan kokku:</th>

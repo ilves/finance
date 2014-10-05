@@ -10,7 +10,10 @@ public class Graph {
     public List<Series> series;
     public PlotOptions plotOptions;
     public Axis xAxis = new Axis();
+    public Axis yAxis = new Axis();
     public Tooltip tooltip = new Tooltip();
+    public Text title = new Text();
+    public Credits credits = new Credits();
 
     public void setType(String type) {
         this.chart.type = type;
@@ -22,6 +25,16 @@ public class Graph {
 
     public void setCategories(List<String> categories) {
         this.xAxis.categories = categories;
+    }
+
+    public void setTitle(String title) {
+        this.title.text = title;
+    }
+
+    public Text getTitle() { return this.title; }
+
+    public void setYAxisTitle(String title) {
+        this.yAxis.title.text = title;
     }
 
     public class PlotOptions {
@@ -36,4 +49,6 @@ public class Graph {
         public String pointFormat;
         public Boolean shared;
     }
+
+
 }

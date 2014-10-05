@@ -7,16 +7,14 @@
         <put-attribute name="menu" value="/WEB-INF/layout/menu.jsp" />
         <put-attribute name="content" value="" />
         <put-attribute name="footer" value="/WEB-INF/layout/footer.jsp" />
+        <put-attribute name="sidebar" value="sidebar" cascade="true" />
     </definition>
 
-    <definition name="loginForm" extends="baseLayout">
+    <definition name="reportTemplate" extends="baseLayout">
         <put-attribute name="navigation" value="" />
-        <put-attribute name="content" value="/WEB-INF/pages/login/login.jsp" />
-        <put-attribute name="footer" value="" />
     </definition>
 
-    <definition name="dashboardForm" extends="baseLayout">
-        <put-attribute name="content" value="/WEB-INF/pages/dashboard/dashboard.jsp" />
+    <definition name="sidebar" preparer="menuPreparer" template="/WEB-INF/layout/sidebar.jsp">
+        <put-attribute name="menu" value="sidebar" />
     </definition>
-
 </tiles-definitions>

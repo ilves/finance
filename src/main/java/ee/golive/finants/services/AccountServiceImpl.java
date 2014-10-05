@@ -38,39 +38,64 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public List<AccountSum> getStats(Account account) {
+    public List<AccountSum> getStats(Account account, String step) {
         List<Account> siblings = AccountHelper.getAllSiblings(account);
-        List<AccountSum> rawSums = accountDao.getAccountTotalsMonthlyInterval(siblings);
+        List<AccountSum> rawSums =
+                step.equals("year") ?
+                        accountDao.getAccountTotalsYearlyInterval(siblings) :
+                        accountDao.getAccountTotalsMonthlyInterval(siblings);
         return rawSums;
     }
 
 
+    public List<AccountSum> getStats(Account account, String step, String description) {
+        List<Account> siblings = AccountHelper.getAllSiblings(account);
+        List<AccountSum> rawSums =
+                step.equals("year") ?
+                        accountDao.getAccountTotalsYearlyIntervalDesc(siblings, description) :
+                        accountDao.getAccountTotalsMonthlyIntervalDesc(siblings, description);
+        return rawSums;
+    }
+
     @Override
-    public List<List<AccountSum>> getStats(List<Account> accounts) {
+    public List<List<AccountSum>> getStats(List<Account> accounts, String step) {
         List<List<AccountSum>> ret = new ArrayList<List<AccountSum>>();
         for(Account account : accounts) {
-            ret.add(getStats(account));
+            ret.add(getStats(account, step));
         }
         return ret;
     }
 
     @Override
-    public List<AccountSum> getStatsTotal(List<Account> accounts) {
+    public List<List<AccountSum>> getStats(List<Account> accounts, String step, String description) {
+        List<List<AccountSum>> ret = new ArrayList<List<AccountSum>>();
+        for(Account account : accounts) {
+            ret.add(getStats(account, step, description));
+        }
+        return ret;
+    }
+
+    @Override
+    public List<AccountSum> getStatsTotal(List<Account> accounts, String step) {
         List<Account> siblings = new ArrayList<Account>();
         for(Account account : accounts) {
             siblings.addAll(AccountHelper.getAllSiblings(account));
         }
-        return accountDao.getAccountTotalsMonthlyInterval(siblings);
+        if (step.equals("year")) {
+            return accountDao.getAccountTotalsYearlyInterval(siblings);
+        } else {
+            return accountDao.getAccountTotalsMonthlyInterval(siblings);
+        }
     }
 
-    @Override
-    public List<AccountSum> getStatsTotalWithoutSiblings(List<Account> accounts) {
-        return accountDao.getAccountTotalsMonthlyInterval(accounts);
-    }
 
     @Override
-    public List<AccountSum> getStatsTotalWithoutSiblings(List<Account> accounts, String description) {
-        return accountDao.getAccountTotalsMonthlyIntervalDesc(accounts, description);
+    public List<AccountSum> getStatsTotalWithoutSiblings(List<Account> accounts, String step, String description) {
+        if (step.equals("year")) {
+            return accountDao.getAccountTotalsYearlyIntervalDesc(accounts, description);
+        } else {
+            return accountDao.getAccountTotalsMonthlyIntervalDesc(accounts, description);
+        }
     }
 
     @Override
