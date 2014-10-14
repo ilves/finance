@@ -22,3 +22,8 @@ jQuery.noConflict();
     }
 })(jQuery);
 
+function StackedTotal(obj) {
+    return '<b>' + obj.x + '</b><br/>' +
+        obj.series.name + ': ' + obj.y + '€<br/>' +
+        'Total: ' + obj.point.stackTotal + '€';
+}

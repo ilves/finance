@@ -8,6 +8,7 @@ import ee.golive.finants.chart.StackedBarChart;
 import ee.golive.finants.helper.AccountHelper;
 import ee.golive.finants.helper.ChartHelper;
 import ee.golive.finants.helper.CollectionsHelper;
+import ee.golive.finants.helper.FinanceHelper;
 import ee.golive.finants.menu.Menu;
 import ee.golive.finants.menu.MenuService;
 import ee.golive.finants.model.Account;
@@ -44,6 +45,25 @@ public class ReportController {
     public String test(Model model, HttpServletRequest request) {
         Report report = new P2PReport(this, request, model);
         return report.getTemplate();
+    }
+
+    @RequestMapping("/future")
+    public String future(Model model, HttpServletRequest request) {
+
+        int years = 10;
+
+        double interest = 0.12;
+        double infla = 0.0418;
+
+
+        double needed = 800*1.23;
+        double amount = needed*12/interest;
+
+        System.out.println(amount);
+        System.out.println(FinanceHelper.fv(amount, years*12, infla/12));
+        System.out.println(FinanceHelper.pmt(interest/12, years*12, 0, amount));
+
+        return "report";
     }
 
     @RequestMapping("/portfolio")

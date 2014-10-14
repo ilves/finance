@@ -50,7 +50,13 @@ public abstract class Report {
 
     public class Parser {
         public String parse(Graph graph) {
-            return new Gson().toJson(graph);
+            return parseFunctions(new Gson().toJson(graph));
+        }
+
+        public String parseFunctions(String json) {
+            json = json.replace("\"function(){","function(){");
+            json = json.replace("}\"","}");
+            return json;
         }
     }
 }

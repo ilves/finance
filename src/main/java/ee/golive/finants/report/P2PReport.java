@@ -39,6 +39,8 @@ public class P2PReport extends Report {
         graph1.setTitle("P2P Income");
         graph1.setYAxisTitle("Income (EUR)");
         graph1.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
+        graph1.getTooltip().setFormatter(
+            "function(){return StackedTotal(this);}");
 
         Graph graph2 = new LineChart();
         List<Series> series = getSeries(getSums("p2pdefaulted"), true, false);
@@ -72,7 +74,9 @@ public class P2PReport extends Report {
         List<List<AccountSum>> out = getSums("loanInvestment");
         List<List<AccountSum>> red = getSums("p2pdefaulted");
 
-        in.add(getSumsA("loanInvestment", "Sissekanne"));
+        List<AccountSum> inList = getSumsA("loanInvestment", "Sissekanne");
+        inList.get(0).setAccount_guid("Total");
+        in.add(inList);
         out.add(getSumsA("loanInvestment"));
         red.add(getSumsA("p2pdefaulted"));
 
@@ -81,6 +85,8 @@ public class P2PReport extends Report {
         Graph graph6 = new LineChart();
         graph6.setSeries(xirrSeries);
         graph6.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
+        graph6.setTitle("XIRR");
+        graph6.setYAxisTitle("XIRR (%)");
 
         graphs.add(graph1);
         graphs.add(graph4);
@@ -141,6 +147,10 @@ public class P2PReport extends Report {
     public List<Series> getXIRRSeries(List<List<AccountSum>> in, List<List<AccountSum>> out, List<List<AccountSum>> red) {
         List<Series> series = new ArrayList<Series>();
         int n = 0;
+        System.out.println(in.size());
+        System.out.println(out.size());
+        System.out.println(red.size());
+
         for (List<AccountSum> sum : in) {
             series.add(getXIRRSerie(sum, out.get(n), red.get(n)));
             n++;
@@ -154,7 +164,9 @@ public class P2PReport extends Report {
         AccountHelper.addInSeries(out);
         AccountHelper.addInSeries(red);
 
-        return new Series(sum.get(0).getAccount_guid(),
+        Account acc = controller.accountService.findByGuid(sum.get(0).getAccount_guid());
+        String name = acc != null ? acc.getName() : sum.get(0).getAccount_guid();
+        return new Series(name,
                 AccountHelper.calculateXIRRSeries(sum,
                         ChartHelper.difference(out, red), interval));
     }

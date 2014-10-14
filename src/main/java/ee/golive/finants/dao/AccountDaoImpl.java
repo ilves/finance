@@ -65,8 +65,9 @@ public class AccountDaoImpl implements AccountDao {
     @Override
     public List<AccountSum> getAccountTotals() {
         return this.entityManager.createQuery(
-                "select new ee.golive.finants.model.AccountSum(SUM(value_num) AS sum, account_guid) " +
-                "from Split group by account_guid").getResultList();
+                "select new ee.golive.finants.model.AccountSum(SUM(s.value_num) AS sum, s.account_guid) " +
+                "from Split AS s " +
+                "group by s.account_guid").getResultList();
     }
 
     @Override

@@ -2,6 +2,7 @@ package ee.golive.finants.chart;
 
 import ee.golive.finants.model.Series;
 
+import javax.tools.Tool;
 import java.util.List;
 
 public class Graph {
@@ -37,6 +38,10 @@ public class Graph {
         this.yAxis.title.text = title;
     }
 
+    public Tooltip getTooltip() {
+        return tooltip;
+    }
+
     public class PlotOptions {
         public Column column;
     }
@@ -48,6 +53,11 @@ public class Graph {
     public class Tooltip {
         public String pointFormat;
         public Boolean shared;
+        public String formatter;
+
+        public void setFormatter(String formatter) {
+            this.formatter = formatter;
+        }
     }
 
 
