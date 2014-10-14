@@ -1,10 +1,7 @@
 package ee.golive.finants.controller;
 
 import com.google.gson.Gson;
-import ee.golive.finants.chart.BarChart;
-import ee.golive.finants.chart.Graph;
-import ee.golive.finants.chart.LineChart;
-import ee.golive.finants.chart.StackedBarChart;
+import ee.golive.finants.chart.*;
 import ee.golive.finants.helper.AccountHelper;
 import ee.golive.finants.helper.ChartHelper;
 import ee.golive.finants.helper.CollectionsHelper;
@@ -13,12 +10,10 @@ import ee.golive.finants.menu.Menu;
 import ee.golive.finants.menu.MenuService;
 import ee.golive.finants.model.Account;
 import ee.golive.finants.model.AccountSum;
-import ee.golive.finants.model.Series;
+import ee.golive.finants.chart.Series;
 import ee.golive.finants.report.P2PReport;
 import ee.golive.finants.report.Report;
 import ee.golive.finants.services.AccountService;
-import in.satpathy.financial.XIRR;
-import in.satpathy.financial.XIRRData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,7 +22,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Controller
 public class ReportController {
@@ -52,16 +50,91 @@ public class ReportController {
 
         int years = 10;
 
-        double interest = 0.12;
+        double interest = 0.10;
         double infla = 0.0418;
 
 
-        double needed = 800*1.23;
+        double needed = 800;
         double amount = needed*12/interest;
 
-        System.out.println(amount);
-        System.out.println(FinanceHelper.fv(amount, years*12, infla/12));
+        amount = FinanceHelper.fv(amount, years*12, infla/12);
         System.out.println(FinanceHelper.pmt(interest/12, years*12, 0, amount));
+
+
+        String step = "month";
+        List<Calendar> interval = ChartHelper.getIntervalList(parseDate("2014/01/01"), parseDate("2024/01/01"), step);
+        List<Calendar> syncinterval = ChartHelper.getIntervalList(parseDate("2010/01/01"), parseDate("2024/01/01"), step);
+
+        List<AccountSum> assets = ChartHelper.sync(
+                accountService.getStatsTotal(collectionsHelper.getByName("assets"), step), syncinterval
+        );
+        AccountHelper.addInSeries(assets);
+        assets = ChartHelper.sync(assets, interval, step);
+
+        List<AccountSum> liab = ChartHelper.sync(
+                accountService.getStatsTotal(collectionsHelper.getByName("liabilities"), step), syncinterval
+        );
+        AccountHelper.addInSeries(liab);
+        liab = ChartHelper.sync(liab, interval, step);
+
+        List<Account> invAcc = collectionsHelper.getByName("realEstate");
+        invAcc.addAll(collectionsHelper.getByName("loan"));
+        invAcc.addAll(collectionsHelper.getByName("shares"));
+
+        List<Account> liqAcc = collectionsHelper.getByName("cash");
+        liqAcc.addAll(invAcc);
+
+        List<AccountSum> liqAccSum = ChartHelper.sync(accountService.getStatsTotal(liqAcc, step), syncinterval, step);
+        AccountHelper.addInSeries(liqAccSum);
+        liqAccSum = ChartHelper.sync(liqAccSum, interval, step);
+
+        List<AccountSum> invAccSum = ChartHelper.sync(accountService.getStatsTotal(invAcc, step), syncinterval, step);
+        AccountHelper.addInSeries(invAccSum);
+        invAccSum = ChartHelper.sync(invAccSum, interval, step);
+
+
+        double steps = FinanceHelper.pmt(interest/12, years*12, 0, amount);
+        double last = 0;
+        List<Point> data = new ArrayList<>();
+
+        Calendar cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+
+
+        for(int n = 1; n <= years*12; n++) {
+            last = FinanceHelper.fv(last, 1, interest/12) + steps;
+            data.add(new Point(cl.getTime().getTime(), (float) last));
+            cl.add(Calendar.MONTH, 1);
+        }
+
+        List<Series> series = new ArrayList<>();
+        Series series1 = new PointSeries("STEPS", data);
+        series1.pointStart = parseDate("2014/02/31").getTime();
+        series.add(series1);
+
+
+        cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+
+        series.add(new PointSeries("NETWORTH", AccountHelper.transformAccountDifference(assets, liab, cl, Calendar.MONTH)));
+
+        cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+        series.add(new PointSeries("LIQ", AccountHelper.transformAccountSum(liqAccSum, cl, Calendar.MONTH)));
+
+        cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+        series.add(new PointSeries("INV", AccountHelper.transformAccountSum(invAccSum, cl, Calendar.MONTH)));
+
+
+        LineChart stepsg = new LineChart();
+        stepsg.disableDots();
+        stepsg.setSeries(series);
+        stepsg.setDateTime();
+        stepsg.setZoomChart();
+
+
+        model.addAttribute("chart", new Gson().toJson(stepsg));
 
         return "report";
     }
@@ -98,10 +171,10 @@ public class ReportController {
         shareSum = ChartHelper.sync(shareSum, interval, step);
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("CASH", AccountHelper.transformAccountSum(cashSum)));
-        series.add(new Series("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
-        series.add(new Series("REALESTATE", AccountHelper.transformAccountSum(realSum)));
-        series.add(new Series("SHARES", AccountHelper.transformAccountSum(shareSum)));
+        series.add(new NormalSeries("CASH", AccountHelper.transformAccountSum(cashSum)));
+        series.add(new NormalSeries("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
+        series.add(new NormalSeries("REALESTATE", AccountHelper.transformAccountSum(realSum)));
+        series.add(new NormalSeries("SHARES", AccountHelper.transformAccountSum(shareSum)));
 
 
         StackedBarChart portfolio = new StackedBarChart();
@@ -138,9 +211,9 @@ public class ReportController {
         List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts, step), interval, step);
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
-        series.add(new Series("REALESTATE", AccountHelper.transformAccountSum(realSum)));
-        series.add(new Series("SHARES", AccountHelper.transformAccountSum(shareSum)));
+        series.add(new NormalSeries("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
+        series.add(new NormalSeries("REALESTATE", AccountHelper.transformAccountSum(realSum)));
+        series.add(new NormalSeries("SHARES", AccountHelper.transformAccountSum(shareSum)));
 
         Graph investments = new StackedBarChart();
         investments.setSeries(series);
@@ -178,9 +251,9 @@ public class ReportController {
         List<AccountSum> bondoraSum = ChartHelper.sync(accountService.getStatsTotal(bondora, step), interval, step);
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("Salary", AccountHelper.transformAccountSum(personalSum)));
-        series.add(new Series("Company", AccountHelper.transformAccountSum(companySum)));
-        series.add(new Series("Interests", AccountHelper.transformAccountSum(bondoraSum)));
+        series.add(new NormalSeries("Salary", AccountHelper.transformAccountSum(personalSum)));
+        series.add(new NormalSeries("Company", AccountHelper.transformAccountSum(companySum)));
+        series.add(new NormalSeries("Interests", AccountHelper.transformAccountSum(bondoraSum)));
 
         Graph investments = new StackedBarChart();
         investments.setSeries(series);
@@ -221,9 +294,9 @@ public class ReportController {
 
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("Assets", AccountHelper.transformAccountSum(assets), "column"));
-        series.add(new Series("Liabilities", AccountHelper.transformAccountSum(liab, true), "column"));
-        series.add(new Series("Networth", AccountHelper.transformAccountDifference(assets, liab), "line"));
+        series.add(new NormalSeries("Assets", AccountHelper.transformAccountSum(assets), "column"));
+        series.add(new NormalSeries("Liabilities", AccountHelper.transformAccountSum(liab, true), "column"));
+        series.add(new NormalSeries("Networth", AccountHelper.transformAccountDifference(assets, liab), "line"));
 
         Graph net = new BarChart();
         net.setSeries(series);
@@ -253,8 +326,8 @@ public class ReportController {
         List<AccountSum> companySum = ChartHelper.sync(accountService.getStatsTotal(company, step), interval, step);
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("Expenses Personal", AccountHelper.transformAccountSum(personalSum)));
-        series.add(new Series("Expenses Company", AccountHelper.transformAccountSum(companySum)));
+        series.add(new NormalSeries("Expenses Personal", AccountHelper.transformAccountSum(personalSum)));
+        series.add(new NormalSeries("Expenses Company", AccountHelper.transformAccountSum(companySum)));
 
         Graph investments = new StackedBarChart();
         investments.setSeries(series);
@@ -295,13 +368,13 @@ public class ReportController {
 
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("Savings", AccountHelper.transformAccountSum(
+        series.add(new NormalSeries("Savings", AccountHelper.transformAccountSum(
                 ChartHelper.difference(incSum, expSum)
         )));
 
         List<Series> series2 = new ArrayList<Series>();
-        series2.add(new Series("Savings rate", ChartHelper.differencePrecent(incSum, expSum)));
-        series2.add(new Series("Savings rate sliding", ChartHelper.differencePrecentSliding(incSum, expSum)));
+        series2.add(new NormalSeries("Savings rate", ChartHelper.differencePrecent(incSum, expSum)));
+        series2.add(new NormalSeries("Savings rate sliding", ChartHelper.differencePrecentSliding(incSum, expSum)));
 
         Graph save = new StackedBarChart();
         save.setSeries(series);
@@ -345,8 +418,8 @@ public class ReportController {
 
 
         List<Series> series = new ArrayList<Series>();
-        series.add(new Series("Optimistic",  AccountHelper.calculateXIRRSeries(inSum, outSeries, interval)));
-        series.add(new Series("Neutral",  AccountHelper.calculateXIRRSeries(inSum, ChartHelper.difference(outSeries, redSeries), interval)));
+        series.add(new NormalSeries("Optimistic",  AccountHelper.calculateXIRRSeries(inSum, outSeries, interval)));
+        series.add(new NormalSeries("Neutral",  AccountHelper.calculateXIRRSeries(inSum, ChartHelper.difference(outSeries, redSeries), interval)));
 
         Graph line = new LineChart();
         line.setSeries(series);

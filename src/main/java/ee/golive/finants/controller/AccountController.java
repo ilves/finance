@@ -1,9 +1,10 @@
 package ee.golive.finants.controller;
 
 import com.google.gson.Gson;
+import ee.golive.finants.chart.NormalSeries;
 import ee.golive.finants.helper.AccountHelper;
 import ee.golive.finants.model.Account;
-import ee.golive.finants.model.Series;
+import ee.golive.finants.chart.Series;
 import ee.golive.finants.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,7 +34,7 @@ public class AccountController {
         List<Series> series = new ArrayList<Series>();
         List<Float> list1 = AccountHelper.transformAccountSum(accountService.getStats(account, "month"));
 
-        series.add(new Series("Test", list1));
+        series.add(new NormalSeries("Test", list1));
 
         SimpleDateFormat sdfDate = new SimpleDateFormat("y/M");
         List<String> categories = new ArrayList<String>();

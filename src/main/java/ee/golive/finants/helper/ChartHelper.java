@@ -1,7 +1,8 @@
 package ee.golive.finants.helper;
 
+import ee.golive.finants.chart.NormalSeries;
 import ee.golive.finants.model.AccountSum;
-import ee.golive.finants.model.Series;
+import ee.golive.finants.chart.Series;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -136,7 +137,7 @@ public class ChartHelper {
                 x++;
             }
         }
-        Series series = new Series(name, ret);
+        Series series = new NormalSeries(name, ret);
         return series;
     }
 

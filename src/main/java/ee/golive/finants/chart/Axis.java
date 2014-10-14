@@ -5,4 +5,5 @@ import java.util.List;
 public class Axis {
     public List<String> categories;
     public Text title = new Text();
+    public String type;
 }

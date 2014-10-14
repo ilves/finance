@@ -1,8 +1,5 @@
 package ee.golive.finants.chart;
 
-import ee.golive.finants.model.Series;
-
-import javax.tools.Tool;
 import java.util.List;
 
 public class Graph {
@@ -38,16 +35,34 @@ public class Graph {
         this.yAxis.title.text = title;
     }
 
+    public void setDateTime() {
+        this.xAxis.type = "datetime";
+    }
+
     public Tooltip getTooltip() {
         return tooltip;
     }
 
+    public void setZoomChart() {
+        this.chart.type = null;
+        this.chart.zoomType = "x";
+    }
+
     public class PlotOptions {
         public Column column;
+        public Line line;
     }
 
     public class Column {
         public String stacking;
+    }
+
+    public class Line {
+        public Marker marker;
+    }
+
+    public class Marker {
+        public boolean enabled = true;
     }
 
     public class Tooltip {

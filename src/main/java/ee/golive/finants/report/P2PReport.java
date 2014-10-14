@@ -1,17 +1,12 @@
 package ee.golive.finants.report;
 
 
-import com.google.gson.Gson;
-import ee.golive.finants.chart.BarChart;
-import ee.golive.finants.chart.Graph;
-import ee.golive.finants.chart.LineChart;
-import ee.golive.finants.chart.StackedBarChart;
+import ee.golive.finants.chart.*;
 import ee.golive.finants.controller.ReportController;
 import ee.golive.finants.helper.AccountHelper;
 import ee.golive.finants.helper.ChartHelper;
 import ee.golive.finants.model.Account;
 import ee.golive.finants.model.AccountSum;
-import ee.golive.finants.model.Series;
 import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpServletRequest;
@@ -138,7 +133,7 @@ public class P2PReport extends Report {
                 AccountHelper.addInSeries(sum);
             List<AccountSum> synced = ChartHelper.sync(sum, interval, step);
             List<Float> data = AccountHelper.transformAccountSum(synced, abs);
-            Series s = new Series(n, data);
+            Series s = new NormalSeries(n, data);
             series.add(s);
         }
         return series;
@@ -166,7 +161,7 @@ public class P2PReport extends Report {
 
         Account acc = controller.accountService.findByGuid(sum.get(0).getAccount_guid());
         String name = acc != null ? acc.getName() : sum.get(0).getAccount_guid();
-        return new Series(name,
+        return new NormalSeries(name,
                 AccountHelper.calculateXIRRSeries(sum,
                         ChartHelper.difference(out, red), interval));
     }

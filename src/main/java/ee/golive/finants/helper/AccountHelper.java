@@ -1,5 +1,6 @@
 package ee.golive.finants.helper;
 
+import ee.golive.finants.chart.Point;
 import ee.golive.finants.model.Account;
 import ee.golive.finants.model.AccountSum;
 import in.satpathy.financial.XIRR;
@@ -56,6 +57,10 @@ public class AccountHelper {
         return list;
     }
 
+    public static List<Point> transformAccountSum(List<AccountSum> list, Calendar start, int type) {
+        return transformAccountSum(list, false, start, type);
+    }
+
     public static List<Float> transformAccountSum(List<AccountSum> list) {
         return transformAccountSum(list, false);
     }
@@ -64,6 +69,15 @@ public class AccountHelper {
         List<Float> ret = new ArrayList<Float>();
         for(AccountSum elem : list) {
             ret.add((abs == true ? Math.abs(elem.getSumMoney()) : elem.getSumMoney()));
+        }
+        return ret;
+    }
+
+    public static List<Point> transformAccountSum(List<AccountSum> list, boolean abs, Calendar start, int type) {
+        List<Point> ret = new ArrayList<>();
+        for(AccountSum elem : list) {
+            ret.add(new Point(start.getTime().getTime(), abs == true ? Math.abs(elem.getSumMoney()) : elem.getSumMoney()));
+            start.add(type, 1);
         }
         return ret;
     }
@@ -91,6 +105,18 @@ public class AccountHelper {
             AccountSum a = assets.get(i);
             AccountSum b = liab.get(i);
             ret.add(a.getSumMoney()+b.getSumMoney());
+        }
+        return ret;
+    }
+
+    public static List<Point> transformAccountDifference(List<AccountSum> assets, List<AccountSum> liab, Calendar start, int type) {
+        List<Point> ret = new ArrayList<>();
+        int i;
+        for(i = 0; i < assets.size(); i++) {
+            AccountSum a = assets.get(i);
+            AccountSum b = liab.get(i);
+            ret.add(new Point(start.getTime().getTime(), a.getSumMoney()+b.getSumMoney()));
+            start.add(type, 1);
         }
         return ret;
     }

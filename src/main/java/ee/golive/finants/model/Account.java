@@ -15,6 +15,9 @@ public class Account {
     private String account_type;
     private String parent_guid;
 
+    @Column(updatable = false, insertable = false)
+    private String commodity_guid;
+
     @Transient
     private Long sum;
 
@@ -25,6 +28,9 @@ public class Account {
     @OneToMany(mappedBy="parentAccount", cascade = CascadeType.ALL)
     @OrderBy("name ASC")
     private Set<Account> childAccounts = new HashSet<Account>();
+
+    @OneToMany(mappedBy = "accounts")
+    private Set<Price> prices;
 
     @OneToMany(mappedBy = "account")
     private Set<Split> splits = new HashSet<Split>();
@@ -75,5 +81,13 @@ public class Account {
 
     public void setSum(Long sum) {
         this.sum = sum;
+    }
+
+    public String getCommodity_guid() {
+        return commodity_guid;
+    }
+
+    public void setCommodity_guid(String commodity_guid) {
+        this.commodity_guid = commodity_guid;
     }
 }
