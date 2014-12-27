@@ -10,9 +10,13 @@
     <script type="text/javascript" src="/webjars/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="<c:url value='/resources/js/main.js'/>"></script>
     <script type="text/javascript" src="/webjars/highcharts/4.0.3/highcharts.js"></script>
+    <script type="text/javascript" src="/webjars/highcharts/4.0.3/highcharts-more.js"></script>
+
+    <script type="text/javascript" src="https://rawgit.com/highslide-software/highcharts.com/7ab293d42677f807e2d2209c38f092ebb3801b1b/js/modules/heatmap.src.js"></script>
+    <script type="text/javascript" src="https://rawgit.com/highslide-software/highcharts.com/7ab293d42677f807e2d2209c38f092ebb3801b1b/js/modules/treemap.src.js"></script>
 
 
-    <title>TITLE</title>
+        <title>TITLE</title>
     <style type="text/css">
 
     </style>
@@ -29,11 +33,8 @@
     <tiles:insertAttribute name="header" />
     <div class="container">
         <div class="row">
-            <div class="col-sm-8">
+            <div class="col-sm-12">
                 <tiles:insertAttribute name="content" />
-            </div>
-            <div class="col-sm-3 col-sm-offset-1">
-                <tiles:insertAttribute name="menu" />
             </div>
         </div>
     </div>

@@ -1,5 +1,8 @@
 package ee.golive.finants.model;
 
+import java.util.Calendar;
+import java.util.Date;
+
 public class AccountSum {
 
     private long sum;
@@ -7,6 +10,7 @@ public class AccountSum {
     private String account_type;
     private long year;
     private long month;
+    private String name;
 
     public AccountSum() {
 
@@ -23,6 +27,23 @@ public class AccountSum {
         this.setYear(year);
         this.setMonth(month);
         this.setAccount_type(account_type);
+    }
+
+    public AccountSum(long sum, String account_guid, String account_type, int year, int month, String name) {
+        this.setSum(sum);
+        this.setAccount_guid(account_guid);
+        this.setYear(year);
+        this.setMonth(month);
+        this.setAccount_type(account_type);
+        this.setName(name);
+    }
+
+    public AccountSum(long sum, String account_guid, String account_type, int year, String name) {
+        this.setSum(sum);
+        this.setAccount_guid(account_guid);
+        this.setYear(year);
+        this.setAccount_type(account_type);
+        this.setName(name);
     }
 
     public AccountSum(long sum, String account_guid, String account_type, int year) {
@@ -60,6 +81,7 @@ public class AccountSum {
     }
 
     public long getMonth() {
+        if (month == 0) return 12;
         return month;
     }
 
@@ -79,13 +101,35 @@ public class AccountSum {
         this.account_type = account_type;
     }
 
+    public void add(Long add) {
+        sum+=add;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String toString() {
         StringBuilder result = new StringBuilder();
+        result.append("Name: " + getName());
         result.append("Account: " + getAccount_guid());
         result.append("Year: " + getYear());
         result.append("Month: " + getMonth());
         result.append("Sum: " + getSum());
+        result.append("Type: " + getAccount_type());
         result.append("\n");
         return result.toString();
+    }
+
+    public Date getDate() {
+        Calendar cl = Calendar.getInstance();
+        cl.set(Calendar.YEAR, (int)getYear());
+        cl.set(Calendar.MONTH, (int)getMonth()-1);
+        cl.set(Calendar.DATE, cl.getActualMaximum(Calendar.DAY_OF_MONTH));
+        return cl.getTime();
     }
 }

@@ -10,7 +10,10 @@ public class Split {
     private String guid;
 
     private String account_guid;
-    private Integer value_num;
+    private Long value_num;
+
+    private Long quantity_num;
+    private Long quantity_denom;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_guid", nullable = false, insertable = false, updatable = false)
@@ -37,15 +40,31 @@ public class Split {
         this.account_guid = account_guid;
     }
 
-    public Integer getValue_num() {
+    public Long getValue_num() {
         return value_num;
     }
 
-    public void setValue_num(Integer value_num) {
+    public void setValue_num(Long value_num) {
         this.value_num = value_num;
     }
 
     public Transaction getTransaction() {
         return this.transaction;
+    }
+
+    public Long getQuantity_num() {
+        return quantity_num;
+    }
+
+    public void setQuantity_num(Long quantity_num) {
+        this.quantity_num = quantity_num;
+    }
+
+    public Long getQuantity_denom() {
+        return quantity_denom;
+    }
+
+    public void setQuantity_denom(Long quantity_denom) {
+        this.quantity_denom = quantity_denom;
     }
 }

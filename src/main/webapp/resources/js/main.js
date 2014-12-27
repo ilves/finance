@@ -23,7 +23,14 @@ jQuery.noConflict();
 })(jQuery);
 
 function StackedTotal(obj) {
-    return '<b>' + obj.x + '</b><br/>' +
+    return '<b>' +   Highcharts.dateFormat('%Y-%m',
+        new Date(obj.x))+ '</b><br/>' +
         obj.series.name + ': ' + obj.y + '€<br/>' +
         'Total: ' + obj.point.stackTotal + '€';
+}
+
+function PercentFormatter(obj) {
+    return '<b>' +   Highcharts.dateFormat('%Y-%m',
+        new Date(obj.x))+ '</b><br/>' +
+        obj.series.name + ': ' + (Math.round(obj.y*100)/100) + '%<br/>';
 }

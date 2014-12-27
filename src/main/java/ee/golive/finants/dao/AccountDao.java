@@ -13,6 +13,7 @@ public interface AccountDao {
     public Long getAccountTotal(Account account);
     public List<AccountSum> getAccountTotals();
     public List<AccountSum> getAccountTotalsMonthlyInterval(List<Account> accounts);
+    public List<AccountSum> getTotalsMonthlyInterval(List<Account> accounts);
     public List<AccountSum> getAccountTotalsYearlyInterval(List<Account> accounts);
     public List<AccountSum> getAccountTotalsMonthlyIntervalDesc(List<Account> accounts, String description);
     public List<AccountSum> getAccountTotalsYearlyIntervalDesc(List<Account> accounts, String description);

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MenuPreparer implements ViewPreparer {
+public class   MenuPreparer implements ViewPreparer {
 
     @Autowired
     MenuService menuService;

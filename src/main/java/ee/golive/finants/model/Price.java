@@ -10,21 +10,10 @@ public class Price {
 
     @Id
     private String guid;
-    private String commodity_guid;
     private Long value_num;
-    private Date post_date;
-
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "commodity_guid", referencedColumnName="commodity_guid", nullable = false, insertable = false, updatable = false)
-    private Set<Account> accounts;
-
-    public String getGuid() {
-        return guid;
-    }
-
-    public void setGuid(String guid) {
-        this.guid = guid;
-    }
+    private Date date;
+    private Long value_denom;
+    private String commodity_guid;
 
     public String getCommodity_guid() {
         return commodity_guid;
@@ -34,6 +23,16 @@ public class Price {
         this.commodity_guid = commodity_guid;
     }
 
+    public String getGuid() {
+        return guid;
+    }
+
+    public void setGuid(String guid) {
+        this.guid = guid;
+    }
+
+
+
     public Long getValue_num() {
         return value_num;
     }
@@ -42,11 +41,23 @@ public class Price {
         this.value_num = value_num;
     }
 
-    public Date getPost_date() {
-        return post_date;
+    public Date getDate() {
+        return date;
     }
 
-    public void setPost_date(Date post_date) {
-        this.post_date = post_date;
+    public void setDate(Date post_date) {
+        this.date = date;
+    }
+
+    public Long getValue_denom() {
+        return value_denom;
+    }
+
+    public void setValue_denom(Long value_denom) {
+        this.value_denom = value_denom;
+    }
+
+    public double getPrice() {
+        return (double)getValue_num()/(double)getValue_denom();
     }
 }

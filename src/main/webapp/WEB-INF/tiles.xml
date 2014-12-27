@@ -5,9 +5,11 @@
     <definition name="baseLayout" template="/WEB-INF/layout/main.jsp">
         <put-attribute name="header" value="/WEB-INF/layout/header.jsp" />
         <put-attribute name="menu" value="/WEB-INF/layout/menu.jsp" />
+        <put-attribute name="topmenu" value="/WEB-INF/layout/topmenu.jsp" cascade="true" />
         <put-attribute name="content" value="" />
         <put-attribute name="footer" value="/WEB-INF/layout/footer.jsp" />
         <put-attribute name="sidebar" value="sidebar" cascade="true" />
+        <put-attribute name="navbarmenu" value="navbarmenu" cascade="true" />
     </definition>
 
     <definition name="reportTemplate" extends="baseLayout">
@@ -15,6 +17,10 @@
     </definition>
 
     <definition name="sidebar" preparer="menuPreparer" template="/WEB-INF/layout/sidebar.jsp">
+        <put-attribute name="menu" value="sidebar" />
+    </definition>
+
+    <definition name="navbarmenu" preparer="menuPreparer" template="/WEB-INF/layout/navbarmenu.jsp">
         <put-attribute name="menu" value="sidebar" />
     </definition>
 </tiles-definitions>

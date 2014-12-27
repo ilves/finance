@@ -46,6 +46,7 @@ public class AppConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
+    @Scope("singleton")
     public MenuService menuService() {
         MenuService menus = new MenuService();
         Menu sidebar = new Menu();

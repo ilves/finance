@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.LinkedHashMap;
 
-@Scope("request")
 public class MenuService {
     private LinkedHashMap<String, Menu> menus = new LinkedHashMap<String, Menu>();
 

@@ -19,12 +19,19 @@ public class CollectionsHelper {
     Environment env;
 
     public List<Account> getByName(String name) {
+        return accountService.getAccounts(getAccounts(name));
+    }
+
+    private List<String> getAccounts(String name) {
         String rawList = env.getProperty("account." + name);
         List<String> accounts = new ArrayList<String>();
         for (String accountId : rawList.split(",")) {
-            accounts.add(accountId.trim());
+            if (accountId.contains("account.")) {
+                accounts.addAll(getAccounts(accountId.trim().replace("account.","")));
+            } else {
+                accounts.add(accountId.trim());
+            }
         }
-        CollectionsHelper helper = new CollectionsHelper();
-        return accountService.getAccounts(accounts);
+        return accounts;
     }
 }

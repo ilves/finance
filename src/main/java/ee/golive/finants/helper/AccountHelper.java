@@ -73,6 +73,8 @@ public class AccountHelper {
         return ret;
     }
 
+
+
     public static List<Point> transformAccountSum(List<AccountSum> list, boolean abs, Calendar start, int type) {
         List<Point> ret = new ArrayList<>();
         for(AccountSum elem : list) {
@@ -130,6 +132,18 @@ public class AccountHelper {
             }
             AccountSum tmp = new AccountSum(total, "Lisatud", "", (int)sum.get(0).get(n).getYear(), (int)sum.get(0).get(n).getMonth());
             ret.add(tmp);
+        }
+        return ret;
+    }
+
+    public static List<Float> sumFloat(List<List<AccountSum>> sum) {
+        List<Float> ret = new ArrayList<>();
+        for(int n = 0; n < sum.get(0).size(); n++) {
+            float total = 0;
+            for(int m = 0; m < sum.size(); m++) {
+                total = total + sum.get(m).get(n).getSum();
+            }
+            ret.add(total);
         }
         return ret;
     }

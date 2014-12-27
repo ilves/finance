@@ -15,6 +15,7 @@ public interface AccountService {
     public List<List<AccountSum>> getStats(List<Account> accounts, String step);
     public List<List<AccountSum>> getStats(List<Account> accounts, String step, String description);
     public List<AccountSum> getStatsTotal(List<Account> accounts, String step);
+    public List<AccountSum> getStatsSum(List<Account> accounts, String step);
     public List<AccountSum> getStatsTotalWithoutSiblings(List<Account> accounts, String step, String description);
     public List<Account> getAccounts(List<String> accountGuids);
 }

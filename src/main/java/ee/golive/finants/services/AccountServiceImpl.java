@@ -88,6 +88,18 @@ public class AccountServiceImpl implements AccountService {
         }
     }
 
+    @Override
+    public List<AccountSum> getStatsSum(List<Account> accounts, String step) {
+        List<Account> siblings = new ArrayList<Account>();
+        for(Account account : accounts) {
+            siblings.addAll(AccountHelper.getAllSiblings(account));
+        }
+        if (step.equals("year")) {
+            return accountDao.getAccountTotalsYearlyInterval(siblings);
+        } else {
+            return accountDao.getTotalsMonthlyInterval(siblings);
+        }
+    }
 
     @Override
     public List<AccountSum> getStatsTotalWithoutSiblings(List<Account> accounts, String step, String description) {

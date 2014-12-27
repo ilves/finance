@@ -11,8 +11,7 @@ import ee.golive.finants.menu.MenuService;
 import ee.golive.finants.model.Account;
 import ee.golive.finants.model.AccountSum;
 import ee.golive.finants.chart.Series;
-import ee.golive.finants.report.P2PReport;
-import ee.golive.finants.report.Report;
+import ee.golive.finants.report.*;
 import ee.golive.finants.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,9 +38,34 @@ public class ReportController {
     @Autowired
     public MenuService menuService;
 
+    @RequestMapping("/networth")
+    public String networth(Model model, HttpServletRequest request) {
+        Report report = new NetworthReport(this, request, model);
+        return report.getTemplate();
+    }
+
     @RequestMapping("/p2p")
     public String test(Model model, HttpServletRequest request) {
         Report report = new P2PReport(this, request, model);
+        return report.getTemplate();
+    }
+
+    @RequestMapping("/portfolio")
+    public String portfolio2(Model model, HttpServletRequest request) {
+        Report report = new PortfolioReport(this, request, model);
+        return report.getTemplate();
+    }
+
+
+    @RequestMapping("/savings")
+    public String savings(Model model, HttpServletRequest request) {
+        Report report = new SavingsReport(this, request, model);
+        return report.getTemplate();
+    }
+
+    @RequestMapping("/income")
+    public String income(Model model, HttpServletRequest request) {
+        Report report = new IncomeReport(this, request, model);
         return report.getTemplate();
     }
 
@@ -80,6 +104,7 @@ public class ReportController {
         List<Account> invAcc = collectionsHelper.getByName("realEstate");
         invAcc.addAll(collectionsHelper.getByName("loan"));
         invAcc.addAll(collectionsHelper.getByName("shares"));
+        invAcc.addAll(collectionsHelper.getByName("indexfunds"));
 
         List<Account> liqAcc = collectionsHelper.getByName("cash");
         liqAcc.addAll(invAcc);
@@ -139,57 +164,8 @@ public class ReportController {
         return "report";
     }
 
-    @RequestMapping("/portfolio")
-    public String portfolio(Model model, HttpServletRequest request) {
-        setMenuActive("portfolio");
-
-        String step = getStep(request);
-        Date start = getDate("start", request);
-        Date end = getDate("end", request);
-
-        List<Calendar> interval = ChartHelper.getIntervalList(start, end, step);
-        List<Calendar> syncInterval = ChartHelper.getIntervalList(getDate("start", "full"), getDate("end", "full"));
-
-        List<Account> cashAccounts = collectionsHelper.getByName("cash");
-        List<AccountSum> cashSum = ChartHelper.sync(accountService.getStatsTotal(cashAccounts, step), syncInterval, step);
-        AccountHelper.addInSeries(cashSum);
-        cashSum = ChartHelper.sync(cashSum, interval, step);
-
-        List<Account> realestateAccounts = collectionsHelper.getByName("realEstate");
-        List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotal(realestateAccounts, step), syncInterval, step);
-        AccountHelper.addInSeries(realSum);
-        realSum = ChartHelper.sync(realSum, interval, step);
-
-        List<Account> loanAccounts = collectionsHelper.getByName("loan");
-        List<AccountSum> loanSum = ChartHelper.sync(accountService.getStatsTotal(loanAccounts, step), syncInterval, step);
-        AccountHelper.addInSeries(loanSum);
-        loanSum = ChartHelper.sync(loanSum, interval, step);
-
-        List<Account> sharesAccounts = collectionsHelper.getByName("shares");
-        List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts, step), syncInterval, step);
-        AccountHelper.addInSeries(shareSum);
-        shareSum = ChartHelper.sync(shareSum, interval, step);
-
-        List<Series> series = new ArrayList<Series>();
-        series.add(new NormalSeries("CASH", AccountHelper.transformAccountSum(cashSum)));
-        series.add(new NormalSeries("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
-        series.add(new NormalSeries("REALESTATE", AccountHelper.transformAccountSum(realSum)));
-        series.add(new NormalSeries("SHARES", AccountHelper.transformAccountSum(shareSum)));
 
 
-        StackedBarChart portfolio = new StackedBarChart();
-        portfolio.setSeries(series);
-        portfolio.setStacking("percent");
-        portfolio.tooltip.pointFormat = "<span style=\"color:{series.color}\">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>";
-        portfolio.tooltip.shared = true;
-        portfolio.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
-
-        model.addAttribute("chart", new Gson().toJson(portfolio));
-        model.addAttribute("period", getPeriod(request));
-        model.addAttribute("step", step);
-
-        return "report";
-    }
 
     @RequestMapping("/investing")
     public String investing(Model model, HttpServletRequest request) {
@@ -205,15 +181,19 @@ public class ReportController {
         List<AccountSum> loanSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(loanAccounts, step, "Sissekanne"), interval, step);
 
         List<Account> realestateAccounts = collectionsHelper.getByName("realEstate");
-        List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotal(realestateAccounts, step), interval, step);
+        List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(realestateAccounts, step, "Sissekanne"), interval, step);
 
         List<Account> sharesAccounts = collectionsHelper.getByName("shares");
-        List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotal(sharesAccounts, step), interval, step);
+        List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(sharesAccounts, step, "Ostmine"), interval, step);
+
+        List<Account> indexAccounts = collectionsHelper.getByName("indexfunds");
+        List<AccountSum> indexSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(indexAccounts, step, "Ostmine"), interval, step);
 
         List<Series> series = new ArrayList<Series>();
         series.add(new NormalSeries("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
         series.add(new NormalSeries("REALESTATE", AccountHelper.transformAccountSum(realSum)));
         series.add(new NormalSeries("SHARES", AccountHelper.transformAccountSum(shareSum)));
+        series.add(new NormalSeries("INDEXFUNDS", AccountHelper.transformAccountSum(indexSum)));
 
         Graph investments = new StackedBarChart();
         investments.setSeries(series);
@@ -226,13 +206,14 @@ public class ReportController {
         model.addAttribute("p2p_sum", AccountHelper.sumList(loanSum));
         model.addAttribute("real_sum", AccountHelper.sumList(realSum));
         model.addAttribute("shares_sum", AccountHelper.sumList(shareSum));
+        model.addAttribute("index_sum", AccountHelper.sumList(indexSum));
         model.addAttribute("months", interval.size());
 
         return "report_investing";
     }
 
-    @RequestMapping("/income")
-    public String income(Model model, HttpServletRequest request) {
+    @RequestMapping("/income-old")
+    public String incomeOld(Model model, HttpServletRequest request) {
         setMenuActive("income");
 
         String step = getStep(request);
@@ -250,10 +231,14 @@ public class ReportController {
         List<Account> bondora = collectionsHelper.getByName("p2pincome");
         List<AccountSum> bondoraSum = ChartHelper.sync(accountService.getStatsTotal(bondora, step), interval, step);
 
+        List<Account> adv = collectionsHelper.getByName("adv");
+        List<AccountSum> advSum = ChartHelper.sync(accountService.getStatsTotal(adv, step), interval, step);
+
         List<Series> series = new ArrayList<Series>();
         series.add(new NormalSeries("Salary", AccountHelper.transformAccountSum(personalSum)));
         series.add(new NormalSeries("Company", AccountHelper.transformAccountSum(companySum)));
         series.add(new NormalSeries("Interests", AccountHelper.transformAccountSum(bondoraSum)));
+        series.add(new NormalSeries("Advertisement", AccountHelper.transformAccountSum(advSum)));
 
         Graph investments = new StackedBarChart();
         investments.setSeries(series);
@@ -270,24 +255,25 @@ public class ReportController {
         return "report_income";
     }
 
-    @RequestMapping("/networth")
-    public String networth(Model model, HttpServletRequest request) {
+    @RequestMapping("/networth-old")
+    public String networthOld(Model model, HttpServletRequest request) {
         setMenuActive("networth");
 
         String step = getStep(request);
         Date start = getDate("start", request);
         Date end = getDate("end", request);
         List<Calendar> interval = ChartHelper.getIntervalList(start, end, step);
-        List<Calendar> syncInterval = ChartHelper.getIntervalList(getDate("start", "full"), getDate("end", "full"));
+        List<Calendar> syncInterval = ChartHelper.getIntervalList(getDate("start", "max"), getDate("end", "full"), step);
 
         List<AccountSum> assets = ChartHelper.sync(
-                accountService.getStatsTotal(collectionsHelper.getByName("assets"), step), syncInterval
+                accountService.getStatsTotal(collectionsHelper.getByName("assets"), step), syncInterval, step
         );
+
         AccountHelper.addInSeries(assets);
         assets = ChartHelper.sync(assets, interval, step);
 
         List<AccountSum> liab = ChartHelper.sync(
-                accountService.getStatsTotal(collectionsHelper.getByName("liabilities"), step), syncInterval
+                accountService.getStatsTotal(collectionsHelper.getByName("liabilities"), step), syncInterval, step
         );
         AccountHelper.addInSeries(liab);
         liab = ChartHelper.sync(liab, interval, step);
@@ -343,56 +329,6 @@ public class ReportController {
         return "report";
     }
 
-    @RequestMapping("/savings")
-    public String savings(Model model, HttpServletRequest request) {
-        setMenuActive("savings");
-
-        String step = getStep(request);
-        Date start = getDate("start", request);
-        Date end = getDate("end", request);
-
-        List<Calendar> interval = ChartHelper.getIntervalList(start, end, step);
-
-        List<Account> exp = collectionsHelper.getByName("expenses");
-        List<Account> inc = collectionsHelper.getByName("personalIncome");
-
-        if (true) {
-            exp.addAll(collectionsHelper.getByName("expensesCompany"));
-            inc.addAll(collectionsHelper.getByName("companyIncome"));
-        }
-
-        List<AccountSum> expSum = ChartHelper.sync(accountService.getStatsTotal(exp, step), interval, step);
-        List<AccountSum> incSum = ChartHelper.sync(accountService.getStatsTotal(inc, step), interval, step);
-
-
-
-
-        List<Series> series = new ArrayList<Series>();
-        series.add(new NormalSeries("Savings", AccountHelper.transformAccountSum(
-                ChartHelper.difference(incSum, expSum)
-        )));
-
-        List<Series> series2 = new ArrayList<Series>();
-        series2.add(new NormalSeries("Savings rate", ChartHelper.differencePrecent(incSum, expSum)));
-        series2.add(new NormalSeries("Savings rate sliding", ChartHelper.differencePrecentSliding(incSum, expSum)));
-
-        Graph save = new StackedBarChart();
-        save.setSeries(series);
-        save.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
-
-        Graph line = new LineChart();
-        line.setSeries(series2);
-        line.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
-
-        model.addAttribute("chart", new Gson().toJson(line));
-        model.addAttribute("period", getPeriod(request));
-        model.addAttribute("step", step);
-
-        model.addAttribute("months", interval.size());
-
-        return "report";
-    }
-
     @RequestMapping("/xirr")
     public String xirr(Model model, HttpServletRequest request) {
 
@@ -401,6 +337,7 @@ public class ReportController {
         Date end = getDate("end", request);
 
         List<Calendar> interval = ChartHelper.getIntervalList(start, end, step);
+        List<Calendar> syncInterval = ChartHelper.getIntervalList(getDate("start", "max"), getDate("end", "full"), step);
 
         List<Account> in = collectionsHelper.getByName("loanInvestment");
         List<AccountSum> inSum = accountService.getStatsTotalWithoutSiblings(in, step, "Sissekanne");
@@ -464,8 +401,11 @@ public class ReportController {
                 cl.set(Calendar.MONTH, 11);
                 end = cl.getTime();
                 break;
+            case "max":
+                start = parseDate("2009/01");
+                break;
             default:
-                start = parseDate("2010/12");
+                start = parseDate("2013/01");
         }
         return type.equals("start") ? start : end;
     }

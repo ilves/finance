@@ -12,6 +12,12 @@ public class Graph {
     public Tooltip tooltip = new Tooltip();
     public Text title = new Text();
     public Credits credits = new Credits();
+    public Legend legend = new Legend();
+
+    public void setMinMax(int min, int max) {
+        this.yAxis.min = min;
+        this.yAxis.max = max;
+    }
 
     public void setType(String type) {
         this.chart.type = type;
@@ -20,6 +26,7 @@ public class Graph {
     public void setSeries(List<Series> series) {
         this.series = series;
     }
+
 
     public void setCategories(List<String> categories) {
         this.xAxis.categories = categories;
@@ -73,6 +80,11 @@ public class Graph {
         public void setFormatter(String formatter) {
             this.formatter = formatter;
         }
+    }
+
+
+    public class Legend {
+        public Boolean enabled = true;
     }
 
 

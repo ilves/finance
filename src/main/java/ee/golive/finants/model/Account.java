@@ -1,13 +1,14 @@
 package ee.golive.finants.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 @NamedQuery(name="fullAccountTree", query="select n from Account n left join fetch n.childAccounts")
 @Entity
 @Table(name = "accounts")
-public class Account {
+public class Account implements Serializable {
 
     @Id
     private String guid;
@@ -29,8 +30,6 @@ public class Account {
     @OrderBy("name ASC")
     private Set<Account> childAccounts = new HashSet<Account>();
 
-    @OneToMany(mappedBy = "accounts")
-    private Set<Price> prices;
 
     @OneToMany(mappedBy = "account")
     private Set<Split> splits = new HashSet<Split>();
