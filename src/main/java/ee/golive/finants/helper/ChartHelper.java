@@ -177,12 +177,19 @@ public class ChartHelper {
         return ret;
     }
 
-
     public static Series differencePercent(Series a, Series b) {
+        return differencePercent(a,b,false);
+    }
+
+    public static Series differencePercent(Series a, Series b, boolean sub) {
         List<Point> ret = new ArrayList<>();
         int x = 0;
         for(Point p : ((PointSeries)a).getData()) {
-            ret.add(new Point(p.x, p.y / ((PointSeries)b).getData().get(x).y * 100f));
+            if (sub) {
+                ret.add(new Point(p.x, 100-(p.y / ((PointSeries)b).getData().get(x).y * 100f)));
+            } else {
+                ret.add(new Point(p.x, p.y / ((PointSeries)b).getData().get(x).y * 100f));
+            }
             x++;
         }
         return new PointSeries(a.name, ret, a.type);

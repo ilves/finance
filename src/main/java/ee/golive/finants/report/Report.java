@@ -48,6 +48,15 @@ public abstract class Report {
         model.addAttribute("period", controller.getPeriod(request));
         model.addAttribute("step", step);
         model.addAttribute("parser", new Parser());
+
+        Calendar end = Calendar.getInstance();
+        end.setTime(this.end);
+        Calendar start = Calendar.getInstance();
+        start.setTime(this.start);
+
+        model.addAttribute("end", end);
+        model.addAttribute("start", start);
+
     }
 
     protected abstract String getMenu();

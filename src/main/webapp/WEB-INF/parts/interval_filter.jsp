@@ -4,9 +4,9 @@
     </div>
     <div class="panel-body">
         <ul class="nav nav-pills">
-            <li class="<c:if test="${period eq 'full'}">active</c:if>"><a href="?period=full&step=${step}">Algusest</a></li>
-            <li class="<c:if test="${period eq 'previous'}">active</c:if>"><a href="?period=previous&step=${step}">Eelmine</a></li>
-            <li class="<c:if test="${period eq 'current'}">active</c:if>"><a href="?period=current&step=${step}">See</a></li>
+            <li class="<c:if test="${period eq 'full'}">active</c:if>"><a href="?period=full&step=${step}">Full</a></li>
+            <li class="<c:if test="${period eq 'previous'}">active</c:if>"><a href="?period=previous&step=${step}">${end.get(1)-1}</a></li>
+            <li class="<c:if test="${period eq 'current'}">active</c:if>"><a href="?period=current&step=${step}">${end.get(1)}</a></li>
         </ul>
     </div>
 </div>

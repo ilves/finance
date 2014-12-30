@@ -69,6 +69,12 @@ public class ReportController {
         return report.getTemplate();
     }
 
+    @RequestMapping("/investing")
+    public String investing(Model model, HttpServletRequest request) {
+        Report report = new InvestmentReport(this, request, model);
+        return report.getTemplate();
+    }
+
     @RequestMapping("/future")
     public String future(Model model, HttpServletRequest request) {
 
@@ -167,50 +173,7 @@ public class ReportController {
 
 
 
-    @RequestMapping("/investing")
-    public String investing(Model model, HttpServletRequest request) {
-        setMenuActive("investing");
 
-        String step = getStep(request);
-        Date start = getDate("start", request);
-        Date end = getDate("end", request);
-
-        List<Calendar> interval = ChartHelper.getIntervalList(start, end, step);
-
-        List<Account> loanAccounts = collectionsHelper.getByName("loanInvestment");
-        List<AccountSum> loanSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(loanAccounts, step, "Sissekanne"), interval, step);
-
-        List<Account> realestateAccounts = collectionsHelper.getByName("realEstate");
-        List<AccountSum> realSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(realestateAccounts, step, "Sissekanne"), interval, step);
-
-        List<Account> sharesAccounts = collectionsHelper.getByName("shares");
-        List<AccountSum> shareSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(sharesAccounts, step, "Ostmine"), interval, step);
-
-        List<Account> indexAccounts = collectionsHelper.getByName("indexfunds");
-        List<AccountSum> indexSum = ChartHelper.sync(accountService.getStatsTotalWithoutSiblings(indexAccounts, step, "Ostmine"), interval, step);
-
-        List<Series> series = new ArrayList<Series>();
-        series.add(new NormalSeries("P2P LOAN", AccountHelper.transformAccountSum(loanSum)));
-        series.add(new NormalSeries("REALESTATE", AccountHelper.transformAccountSum(realSum)));
-        series.add(new NormalSeries("SHARES", AccountHelper.transformAccountSum(shareSum)));
-        series.add(new NormalSeries("INDEXFUNDS", AccountHelper.transformAccountSum(indexSum)));
-
-        Graph investments = new StackedBarChart();
-        investments.setSeries(series);
-        investments.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
-
-        model.addAttribute("chart", new Gson().toJson(investments));
-        model.addAttribute("period", getPeriod(request));
-        model.addAttribute("step", step);
-
-        model.addAttribute("p2p_sum", AccountHelper.sumList(loanSum));
-        model.addAttribute("real_sum", AccountHelper.sumList(realSum));
-        model.addAttribute("shares_sum", AccountHelper.sumList(shareSum));
-        model.addAttribute("index_sum", AccountHelper.sumList(indexSum));
-        model.addAttribute("months", interval.size());
-
-        return "report_investing";
-    }
 
     @RequestMapping("/income-old")
     public String incomeOld(Model model, HttpServletRequest request) {

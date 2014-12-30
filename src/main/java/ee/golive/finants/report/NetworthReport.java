@@ -1,11 +1,11 @@
 package ee.golive.finants.report;
 
 
-import ee.golive.finants.chart.*;
+import ee.golive.finants.chart.BarChart;
+import ee.golive.finants.chart.Graph;
+import ee.golive.finants.chart.Series;
 import ee.golive.finants.controller.ReportController;
-import ee.golive.finants.helper.AccountHelper;
 import ee.golive.finants.helper.ChartHelper;
-import ee.golive.finants.model.Account;
 import ee.golive.finants.model.AccountSum;
 import org.springframework.ui.Model;
 
@@ -53,25 +53,5 @@ public class NetworthReport extends Report {
         netWorth.setYAxisTitle("Wealth (EUR)");
 
         graphs.add(netWorth);
-
-
-        Graph portfolioValue = new BarChart();
-        portfolioValue.setDateTime();
-
-        List<List<AccountSum>> list2 = new ArrayList<>();
-        list2.add(getSumsA("investments", "Sissekanne|Ostmine|MUUK"));
-        list2.add(getSumsA("investments"));
-
-        List<Series> portfolioValuesTmp = getSeries(list2, true, true, Arrays.asList("Investments", "Real value"));
-
-        List<Series> portfolioValues = new ArrayList<>();
-        portfolioValues.add(ChartHelper.toAreaRange(portfolioValuesTmp.get(0), portfolioValuesTmp.get(1)));
-
-        portfolioValue.setSeries(portfolioValues);
-        portfolioValue.setTitle("Performance of the investments");
-        portfolioValue.setYAxisTitle("Value (EUR)");
-        portfolioValue.setType("arearange");
-
-        graphs.add(portfolioValue);
     }
 }
