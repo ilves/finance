@@ -37,3 +37,11 @@ body {
 .account-list .toggle.active b {
     display: block;
 }
+
+.padding {
+    padding:0.4em;
+}
+
+.no-margin {
+    margin: 0;
+}

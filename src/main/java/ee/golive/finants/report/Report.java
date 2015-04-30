@@ -29,6 +29,7 @@ public abstract class Report {
 
     public String menu = "";
     public String step;
+    public int cum;
 
     public Report(ReportController controller, HttpServletRequest request, Model model) {
         this.controller = controller;
@@ -38,6 +39,7 @@ public abstract class Report {
         this.start = controller.getDate("start", this.request);
         this.end = controller.getDate("end", this.request);
         this.interval = ChartHelper.getIntervalList(this.start, this.end, this.step);
+        this.cum = controller.getCumulative(request);
         run();
     }
 
@@ -48,6 +50,7 @@ public abstract class Report {
         model.addAttribute("period", controller.getPeriod(request));
         model.addAttribute("step", step);
         model.addAttribute("parser", new Parser());
+        model.addAttribute("cum", cum);
 
         Calendar end = Calendar.getInstance();
         end.setTime(this.end);
@@ -72,7 +75,7 @@ public abstract class Report {
 
     public abstract String getTemplate();
 
-    public class Parser {
+    public static class Parser {
         public String parse(Graph graph) {
             return parseFunctions(new Gson().toJson(graph));
         }
@@ -110,10 +113,14 @@ public abstract class Report {
     }
 
     public List<Series> getSeries(List<List<AccountSum>> sums, Boolean addInSeries, Boolean abs) {
-        return getSeries(sums, addInSeries, abs, null);
+        return getSeries(sums, addInSeries, false, abs, null);
     }
 
     public List<Series> getSeries(List<List<AccountSum>> sums, Boolean addInSeries, Boolean abs, List<String> names) {
+        return getSeries(sums, addInSeries, false, abs, names);
+    }
+
+    public List<Series> getSeries(List<List<AccountSum>> sums, Boolean addInSeries, Boolean after, Boolean abs, List<String> names) {
         List<Series> series = new ArrayList<>();
         int m = 0;
         for (List<AccountSum> sum : sums) {
@@ -122,9 +129,11 @@ public abstract class Report {
                     (acc != null ? acc.getName() :
                         sum.size() > 0 ? sum.get(sum.size()-1).getName() : "");
             sum = ChartHelper.fillCaps(sum, interval, step);
-            if (addInSeries)
+            if (addInSeries && !after)
                 AccountHelper.addInSeries(sum);
             List<AccountSum> synced = ChartHelper.sync(sum, interval, step);
+            if (addInSeries && after)
+                AccountHelper.addInSeries(sum);
             List<Point> data = AccountHelper.transformAccountSum(synced, abs, (Calendar)interval.get(0).clone(), getTypeCal());
             Series s = new PointSeries(n, data);
             series.add(s);
@@ -143,7 +152,8 @@ public abstract class Report {
         int n = 0;
 
         for (List<AccountSum> sum : in) {
-            series.add(getXIRRSerie(sum, out.get(n), red.get(n)));
+            if (out.size() > n && red.size() > n)
+                series.add(getXIRRSerie(sum, out.get(n), red.get(n)));
             n++;
         }
         return series;

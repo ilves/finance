@@ -2,6 +2,7 @@ package ee.golive.finants.services;
 
 import ee.golive.finants.dao.AccountDao;
 import ee.golive.finants.helper.AccountHelper;
+import ee.golive.finants.helper.CollectionsHelper;
 import ee.golive.finants.model.Account;
 import ee.golive.finants.model.AccountSum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,10 @@ public class AccountServiceImpl implements AccountService {
 
     @Autowired
     AccountDao accountDao;
+
+    @Autowired
+    public CollectionsHelper collectionsHelper;
+
 
     @Override
     public List<Account> getList() {
@@ -117,6 +122,12 @@ public class AccountServiceImpl implements AccountService {
             ret.add(findByGuid(guid));
         }
         return ret;
+    }
+
+    @Override
+    public Account findById(String id) {
+        List<Account> accounts = collectionsHelper.getByName(id);
+        return accounts.get(0);
     }
 
 

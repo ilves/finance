@@ -44,7 +44,7 @@ public class PortfolioReport extends Report {
         List<String> names = new ArrayList<>();
         names.add("CASH");
         names.add("ESTATE");
-        names.add("P2P");
+        names.add("P2PLOAN");
         names.add("STOCK");
         names.add("INXF");
 
@@ -98,9 +98,21 @@ public class PortfolioReport extends Report {
         list2.addAll(getSums("realEstate"));
         list2.add(getSumsA("bondora"));
         list2.add(getSumsA("moneyzen"));
+        list2.add(getSumsA("omaraha"));
+
+        List<String> names2 = new ArrayList<>();
+        names2.add("OEG1T");
+        names2.add("TVEAT");
+        names2.add("TKM1T");
+        names2.add("SPY");
+        names2.add("Crowdestate");
+        names2.add("EstateGuru");
+        names2.add("Bondora");
+        names2.add("MoneyZen");
+        names2.add("Omaraha");
 
 
-        List<Series> series2 = getSeries(list2, true, true);
+        List<Series> series2 = getSeries(list2, true, true, names2);
 
         List<Value> vals2 = new ArrayList<>();
         n = 0;

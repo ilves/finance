@@ -1,9 +1,8 @@
-package ee.golive.finants.config;
+package ee.golive.personal.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
@@ -23,7 +22,7 @@ import java.util.Properties;
 
 @Configuration
 @EnableTransactionManagement
-public class DbConfig extends WebMvcConfigurerAdapter {
+public class DbConfigPersonal extends WebMvcConfigurerAdapter {
 
     @Autowired
     Environment env;
@@ -31,17 +30,17 @@ public class DbConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         OpenEntityManagerInViewInterceptor interceptor = new OpenEntityManagerInViewInterceptor();
-        interceptor.setEntityManagerFactory(entityManagerFactory().getObject());
+        interceptor.setEntityManagerFactory(entityManagerFactory2().getObject());
         registry.addWebRequestInterceptor(interceptor);
     }
 
     @Bean
-    public DataSource dataSource() {
+    public DataSource dataSource2() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(env.getProperty("db.url"));
-        dataSource.setUsername(env.getProperty("db.username"));
-        dataSource.setPassword(env.getProperty("db.password"));
+        dataSource.setUrl(env.getProperty("db_personal.url"));
+        dataSource.setUsername(env.getProperty("db_personal.username"));
+        dataSource.setPassword(env.getProperty("db_personal.password"));
         return dataSource;
     }
 
@@ -56,18 +55,17 @@ public class DbConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    @Primary
-    public PlatformTransactionManager transactionManager(EntityManagerFactory entityManagerFactory){
+    public PlatformTransactionManager transactionManager2(EntityManagerFactory entityManagerFactory2){
         JpaTransactionManager transactionManager = new JpaTransactionManager();
-        transactionManager.setEntityManagerFactory(entityManagerFactory);
+        transactionManager.setEntityManagerFactory(entityManagerFactory2);
         return transactionManager;
     }
 
     @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory2() {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource());
-        em.setPackagesToScan(new String[] { "ee.golive.finants.model" });
+        em.setDataSource(dataSource2());
+        em.setPackagesToScan(new String[] { "ee.golive.personal.model" });
         JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
         em.setJpaVendorAdapter(vendorAdapter);
         em.setJpaProperties(hibProperties());
@@ -75,10 +73,10 @@ public class DbConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory() {
+    public LocalSessionFactoryBean sessionFactory2() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(dataSource());
-        sessionFactory.setPackagesToScan(new String[] { "ee.golive.finants.model" });
+        sessionFactory.setDataSource(dataSource2());
+        sessionFactory.setPackagesToScan(new String[] { "ee.golive.personal.model" });
         sessionFactory.setHibernateProperties(hibProperties());
         return sessionFactory;
     }

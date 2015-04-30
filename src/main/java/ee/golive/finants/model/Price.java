@@ -60,4 +60,8 @@ public class Price {
     public double getPrice() {
         return (double)getValue_num()/(double)getValue_denom();
     }
+
+    public String toString() {
+        return "Date: " + date + " Price: " + getPrice();
+    }
 }

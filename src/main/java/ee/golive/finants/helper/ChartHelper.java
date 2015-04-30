@@ -8,10 +8,7 @@ import ee.golive.finants.chart.Series;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class ChartHelper {
 
@@ -104,7 +101,7 @@ public class ChartHelper {
         for(AccountSum n : a) {
             long num = b.size() > i ? b.get(i).getSum() : 0;
             long sum = (n.getSum()-num);
-            AccountSum tmp = new AccountSum(sum, "", "", (int)n.getYear(), (int)n.getMonth());
+            AccountSum tmp = new AccountSum(sum, "", "", (int)n.getYear(), (int)n.getMonth(), n.getName());
             i++;
             ret.add(tmp);
         }
@@ -185,8 +182,28 @@ public class ChartHelper {
         List<Point> ret = new ArrayList<>();
         int x = 0;
         for(Point p : ((PointSeries)a).getData()) {
+            float val;
             if (sub) {
-                ret.add(new Point(p.x, 100-(p.y / ((PointSeries)b).getData().get(x).y * 100f)));
+                val = 100-(p.y / ((PointSeries)b).getData().get(x).y * 100f);
+                ret.add(new Point(p.x, val));
+            } else {
+                val = p.y / ((PointSeries)b).getData().get(x).y * 100f;
+            }
+            if (Float.isNaN(val)) val = 0;
+            ret.add(new Point(p.x, val));
+            x++;
+        }
+        return new PointSeries(a.name, ret, a.type);
+    }
+
+    public static Series roi(Series a, Series b, boolean sub) {
+        List<Point> ret = new ArrayList<>();
+        int x = 0;
+        for(Point p : ((PointSeries)a).getData()) {
+            if (sub) {
+                float investment = ((PointSeries)b).getData().get(x).y;
+                float profit = p.x - investment;
+                ret.add(new Point(p.x, profit/investment*100f));
             } else {
                 ret.add(new Point(p.x, p.y / ((PointSeries)b).getData().get(x).y * 100f));
             }
@@ -248,19 +265,74 @@ public class ChartHelper {
         return series;
     }
 
+    public static Series cumulativePoint(List<Series> list, String name, String type) {
+        List<Point> ret = new ArrayList<>();
+        float total = 0;
+        for(int i = 0; i < list.get(0).getData().size(); i++) {
+            for(int j = 0; j < list.size(); j++) {
+                PointSeries s = (PointSeries) list.get(j);
+                total+=s.getData().get(i).y;
+            }
+            PointSeries tmp = (PointSeries)list.get(0);
+            ret.add(new Point(tmp.getData().get(i).x, total));
+        }
+        Series series = new PointSeries(name, ret, type);
+        return series;
+    }
+
     public static Series cumulativePoint(Series s) {
         List<Point> ret = new ArrayList<>();
         float total = 0;
         for(Point p : ((PointSeries) s).getData()) {
             total+=p.y;
+            if (Float.isNaN(total)) total = 0;
             ret.add(new Point(p.x, total));
         }
         return new PointSeries(s.name, ret, s.type);
     }
 
+    public static float sum(float[] a) {
+        float sum = 0;
+        for(float f : a) {
+            sum+=f;
+        }
+        return sum;
+    }
+
+    public static Series rollingAverage(Series s) {
+        List<Point> ret = new ArrayList<>();
+        float[] total = new float[s.getData().size()];
+        int n = 1;
+        for(Point p : ((PointSeries) s).getData()) {
+            total[n-1] = p.y;
+            int start = Math.max(0, n-12);
+            int end = n;
+            float sum = sum(Arrays.copyOfRange(total, start, end));
+            if (Float.isNaN(sum)) sum = 0;
+            ret.add(new Point(p.x, sum/(end-start)));
+            n++;
+        }
+        return new PointSeries(s.name, ret, s.type);
+    }
+
+    public static Series yearsOfExpenses(Series a, Series b) {
+        List<Point> ret = new ArrayList<>();
+        int x = 0;
+        for(Point p : ((PointSeries)a).getData()) {
+            ret.add(new Point(p.x, p.y / ((PointSeries)b).getData().get(x).y / 12));
+            x++;
+        }
+        return new PointSeries(a.name, ret, a.type);
+    }
+
+
     private static Date parseDate(String date) {
         try {
-            return new SimpleDateFormat("y/M").parse(date);
+            Date parsedDate = new SimpleDateFormat("y/M").parse(date);
+            Calendar cl = Calendar.getInstance();
+            cl.setTime(parsedDate);
+            cl.set(Calendar.DATE, cl.getActualMaximum(Calendar.DAY_OF_MONTH));
+            return cl.getTime();
         } catch (ParseException e) {
 
         }
@@ -268,11 +340,6 @@ public class ChartHelper {
     }
 
     private static Date parseDate(Long year, Long month) {
-        try {
-            return new SimpleDateFormat("y/M").parse(year+"/"+month);
-        } catch (ParseException e) {
-
-        }
-        return new Date();
+        return parseDate(year+"/"+month);
     }
 }

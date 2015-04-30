@@ -16,10 +16,10 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.tiles3.TilesConfigurer;
 
 @Configuration
-@ComponentScan("ee.golive.finants")
+@ComponentScan({"ee.golive.finants","ee.golive.personal"})
 @EnableWebMvc
 @EnableJpaRepositories("ee.golive.finants.repository")
-@Import({DbConfig.class})
+@Import({DbConfig.class,ee.golive.personal.config.DbConfigPersonal.class})
 @PropertySource("classpath:/config/${APP_ENV:development}.properties")
 public class AppConfig extends WebMvcConfigurerAdapter {
 

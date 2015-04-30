@@ -14,7 +14,7 @@ import java.util.*;
 @Service
 public class AccountDaoImpl implements AccountDao {
 
-    @PersistenceContext
+    @PersistenceContext(unitName = "entityManagerFactory")
     private EntityManager entityManager;
 
     @Override
@@ -67,6 +67,7 @@ public class AccountDaoImpl implements AccountDao {
         return this.entityManager.createQuery(
                 "select new ee.golive.finants.model.AccountSum(SUM(s.value_num) AS sum, s.account_guid) " +
                 "from Split AS s " +
+                "where s.account_guid NOT IN('c6088213aa199e60d27e74d1f1bfdc37') " +
                 "group by s.account_guid").getResultList();
     }
 
@@ -104,7 +105,7 @@ public class AccountDaoImpl implements AccountDao {
                     old.setAmount(old.getAmount()+s.getAmount());
                     old.setDate(s.getDate());
                 } else {
-                    ret.put(s.getAccount_guid(), new StockSum(s.getAmount(), s.getAccount_guid(), s.getCommodity_guid(), s.getDate()));
+                    ret.put(s.getAccount_guid(), new StockSum(s.getAmount(), s.getAccount_guid(), s.getCommodity_guid(), s.getDate(), s.getName()));
                 }
             }
         }
@@ -162,6 +163,7 @@ public class AccountDaoImpl implements AccountDao {
                         "group by s.account_guid, YEAR(t.post_date), MONTH(t.post_date) " +
                         "order by t.post_date").getResultList();
 
+
         if (moneyAccs.size() == 0) {
             Date last = null;
             for(Price p : prices) {
@@ -171,6 +173,8 @@ public class AccountDaoImpl implements AccountDao {
                 cal.setTime(p.getDate());
                 moneyAccs.add(new AccountSum(0, "", "", cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1));
             }
+
+
         }
 
         long last = 0;
@@ -213,7 +217,7 @@ public class AccountDaoImpl implements AccountDao {
         List<StockSum> amountAccs = this.entityManager.createQuery(
                 "select " +
                         "new ee.golive.finants.model.StockSum(" +
-                        "SUM(s.quantity_num/s.quantity_denom) AS sum, s.account_guid, a.commodity_guid, t.post_date) " +
+                        "SUM(s.quantity_num/s.quantity_denom) AS sum, s.account_guid, a.commodity_guid, t.post_date, a.name AS name) " +
                         "from Split AS s " +
                         "join s.transaction as t " +
                         "join s.account as a " +

@@ -56,7 +56,6 @@ public class ReportController {
         return report.getTemplate();
     }
 
-
     @RequestMapping("/savings")
     public String savings(Model model, HttpServletRequest request) {
         Report report = new SavingsReport(this, request, model);
@@ -75,6 +74,16 @@ public class ReportController {
         return report.getTemplate();
     }
 
+    @RequestMapping("/expenses")
+    public String expenses(Model model, HttpServletRequest request) {
+        Report report = new ExpensesReport(this, request, model);
+        return report.getTemplate();
+    }
+
+
+
+
+
     @RequestMapping("/future")
     public String future(Model model, HttpServletRequest request) {
 
@@ -83,17 +92,10 @@ public class ReportController {
         double interest = 0.10;
         double infla = 0.0418;
 
-
-        double needed = 800;
-        double amount = needed*12/interest;
-
-        amount = FinanceHelper.fv(amount, years*12, infla/12);
-        System.out.println(FinanceHelper.pmt(interest/12, years*12, 0, amount));
-
-
         String step = "month";
         List<Calendar> interval = ChartHelper.getIntervalList(parseDate("2014/01/01"), parseDate("2024/01/01"), step);
         List<Calendar> syncinterval = ChartHelper.getIntervalList(parseDate("2010/01/01"), parseDate("2024/01/01"), step);
+        List<Calendar> intervalToday = ChartHelper.getIntervalList(parseDate("2014/01/01"), new Date(), step);
 
         List<AccountSum> assets = ChartHelper.sync(
                 accountService.getStatsTotal(collectionsHelper.getByName("assets"), step), syncinterval
@@ -117,12 +119,79 @@ public class ReportController {
 
         List<AccountSum> liqAccSum = ChartHelper.sync(accountService.getStatsTotal(liqAcc, step), syncinterval, step);
         AccountHelper.addInSeries(liqAccSum);
-        liqAccSum = ChartHelper.sync(liqAccSum, interval, step);
+        liqAccSum = ChartHelper.sync(liqAccSum, intervalToday, step);
 
         List<AccountSum> invAccSum = ChartHelper.sync(accountService.getStatsTotal(invAcc, step), syncinterval, step);
         AccountHelper.addInSeries(invAccSum);
-        invAccSum = ChartHelper.sync(invAccSum, interval, step);
+        invAccSum = ChartHelper.sync(invAccSum, intervalToday, step);
 
+
+
+
+        Calendar cl = Calendar.getInstance();
+
+
+
+        List<Series> series = new ArrayList<>();
+
+        addPrediction(interest, infla, years, 500, series, "LV1");
+        addPrediction(interest, infla, years, 800, series, "LV2");
+        addPrediction(interest, infla, years, 1600, series, "LV3");
+
+
+        cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+
+        //series.add(new PointSeries("NETWORTH", AccountHelper.transformAccountDifference(assets, liab, cl, Calendar.MONTH)));
+
+        cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+        //series.add(new PointSeries("LIQ", AccountHelper.transformAccountSum(liqAccSum, cl, Calendar.MONTH)));
+
+        cl = Calendar.getInstance();
+        cl.setTime(parseDate("2014/02/31"));
+        series.add(new PointSeries("INV", AccountHelper.transformAccountSum(invAccSum, cl, Calendar.MONTH)));
+
+
+
+
+        List<Point> data2 = new ArrayList<>();
+
+
+        AccountSum lastInv = invAccSum.get(invAccSum.size()-1);
+        Calendar cl2 = Calendar.getInstance();
+        cl2.setTime(parseDate(lastInv.getYear()+"/"+lastInv.getMonth()+"/28"));
+        cl2.add(Calendar.MONTH, 1);
+        double last = lastInv.getSumMoney();
+
+        for(long m = lastInv.getMonth(); m <= years*12; m++) {
+            last = FinanceHelper.fv(last, 1, interest/12);
+            data2.add(new Point(cl2.getTime().getTime(), (float) last));
+            cl2.add(Calendar.MONTH, 1);
+        }
+
+        Series investmentGrowth = new PointSeries("Investments Growth", data2);
+        investmentGrowth.pointStart = parseDate("2014/02/31").getTime();
+        series.add(investmentGrowth);
+
+
+        LineChart stepsg = new LineChart();
+        stepsg.disableDots();
+        stepsg.setSeries(series);
+        stepsg.setDateTime();
+        stepsg.setZoomChart();
+
+
+        model.addAttribute("chart", new Gson().toJson(stepsg));
+
+        return "report";
+    }
+
+    public void addPrediction(double interest, double infla, int years, double needed, List<Series> series, String name) {
+
+        double amount = needed*12/interest;
+
+        amount = FinanceHelper.fv(amount, years*12, infla/12);
 
         double steps = FinanceHelper.pmt(interest/12, years*12, 0, amount);
         double last = 0;
@@ -138,39 +207,11 @@ public class ReportController {
             cl.add(Calendar.MONTH, 1);
         }
 
-        List<Series> series = new ArrayList<>();
-        Series series1 = new PointSeries("STEPS", data);
+
+        Series series1 = new PointSeries(name, data);
         series1.pointStart = parseDate("2014/02/31").getTime();
         series.add(series1);
-
-
-        cl = Calendar.getInstance();
-        cl.setTime(parseDate("2014/02/31"));
-
-        series.add(new PointSeries("NETWORTH", AccountHelper.transformAccountDifference(assets, liab, cl, Calendar.MONTH)));
-
-        cl = Calendar.getInstance();
-        cl.setTime(parseDate("2014/02/31"));
-        series.add(new PointSeries("LIQ", AccountHelper.transformAccountSum(liqAccSum, cl, Calendar.MONTH)));
-
-        cl = Calendar.getInstance();
-        cl.setTime(parseDate("2014/02/31"));
-        series.add(new PointSeries("INV", AccountHelper.transformAccountSum(invAccSum, cl, Calendar.MONTH)));
-
-
-        LineChart stepsg = new LineChart();
-        stepsg.disableDots();
-        stepsg.setSeries(series);
-        stepsg.setDateTime();
-        stepsg.setZoomChart();
-
-
-        model.addAttribute("chart", new Gson().toJson(stepsg));
-
-        return "report";
     }
-
-
 
 
 
@@ -258,39 +299,7 @@ public class ReportController {
         return "report";
     }
 
-    @RequestMapping("/expenses")
-    public String expenses(Model model, HttpServletRequest request) {
-        setMenuActive("expenses");
 
-        String step = getStep(request);
-        Date start = getDate("start", request);
-        Date end = getDate("end", request);
-
-        List<Calendar> interval = ChartHelper.getIntervalList(start, end, step);
-
-        List<Account> personal = collectionsHelper.getByName("expenses");
-        List<Account> company = collectionsHelper.getByName("expensesCompany");
-
-        List<AccountSum> personalSum = ChartHelper.sync(accountService.getStatsTotal(personal, step), interval, step);
-        List<AccountSum> companySum = ChartHelper.sync(accountService.getStatsTotal(company, step), interval, step);
-
-        List<Series> series = new ArrayList<Series>();
-        series.add(new NormalSeries("Expenses Personal", AccountHelper.transformAccountSum(personalSum)));
-        series.add(new NormalSeries("Expenses Company", AccountHelper.transformAccountSum(companySum)));
-
-        Graph investments = new StackedBarChart();
-        investments.setSeries(series);
-        investments.setCategories(ChartHelper.transformCalendar(interval, new SimpleDateFormat("y/M")));
-
-        model.addAttribute("chart", new Gson().toJson(investments));
-        model.addAttribute("period", getPeriod(request));
-        model.addAttribute("step", step);
-
-        model.addAttribute("salary_sum", AccountHelper.sumList(personalSum));
-        model.addAttribute("months", interval.size());
-
-        return "report";
-    }
 
     @RequestMapping("/xirr")
     public String xirr(Model model, HttpServletRequest request) {
@@ -334,9 +343,13 @@ public class ReportController {
         return "report";
     }
 
-    private Date parseDate(String date) {
+    public Date parseDate(String date) {
         try {
-            return new SimpleDateFormat("y/M").parse(date);
+            Date parsed = new SimpleDateFormat("y/M").parse(date);
+            Calendar cl = Calendar.getInstance();
+            cl.setTime(parsed);
+            cl.set(Calendar.HOUR, 12);
+            return cl.getTime();
         } catch (ParseException e) {
 
         }
@@ -351,14 +364,17 @@ public class ReportController {
         Date start = new Date();
         Date end = new Date();
         Calendar cl = Calendar.getInstance();
+        cl.setTime(start);
+        //cl.set(Calendar.YEAR, 2014);
+        //cl.set(Calendar.MONTH, 11);
+
         switch (period) {
             case "current":
-                cl.set(Calendar.YEAR, cl.getWeekYear());
                 cl.set(Calendar.MONTH, 0);
                 start = cl.getTime();
                 break;
             case "previous":
-                cl.set(Calendar.YEAR, cl.getWeekYear()-1);
+                cl.set(Calendar.YEAR, cl.get(Calendar.YEAR)-1);
                 cl.set(Calendar.MONTH, 0);
                 start = (Date)cl.getTime().clone();
                 cl.set(Calendar.MONTH, 11);
@@ -367,18 +383,28 @@ public class ReportController {
             case "max":
                 start = parseDate("2009/01");
                 break;
+            case "last12":
+                end = cl.getTime();
+                cl.set(Calendar.MONTH, cl.get(Calendar.MONTH)-12);
+                start = cl.getTime();
+                break;
             default:
                 start = parseDate("2013/01");
         }
+
         return type.equals("start") ? start : end;
     }
 
     public String getPeriod(HttpServletRequest request) {
-        return request.getParameter("period") == null ? "current" : request.getParameter("period");
+        return request.getParameter("period") == null ? "last12" : request.getParameter("period");
     }
 
     public String getStep(HttpServletRequest request) {
         return request.getParameter("step") == null ? "month" : request.getParameter("step");
+    }
+
+    public int getCumulative(HttpServletRequest request) {
+        return request.getParameter("cum") == null ? 0 : 1;
     }
 
     public void setMenuActive(String key) {
